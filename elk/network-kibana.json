@@ -1,0 +1,44 @@
+[
+  {
+    "_id": "039dd070-c5a5-11e8-9616-a72289d3ca7c",
+    "_type": "visualization",
+    "_source": {
+      "title": "Network Traffic (Bytes) enp139s0",
+      "visState": "{\"title\":\"Network Traffic (Bytes) enp139s0\",\"type\":\"metrics\",\"params\":{\"time_field\":\"@timestamp\",\"series\":[{\"line_width\":\"0\",\"terms_field\":\"system.network.name\",\"point_size\":\"0\",\"color\":\"rgba(0,156,224,1)\",\"value_template\":\"{{value}}/s\",\"label\":\"Inbound \",\"metrics\":[{\"field\":\"system.network.in.bytes\",\"type\":\"max\",\"id\":\"da1046f2-faa0-11e6-86b1-cd7735ff7e23\"},{\"field\":\"da1046f2-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"derivative\",\"id\":\"f41f9280-faa0-11e6-86b1-cd7735ff7e23\",\"unit\":\"1s\"},{\"field\":\"f41f9280-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"positive_only\",\"id\":\"a87398e0-1b93-11e7-8ada-3df93aab833e\",\"unit\":\"\"},{\"function\":\"sum\",\"type\":\"series_agg\",\"id\":\"2d533df0-2c2d-11e7-be71-3162da85303f\"}],\"seperate_axis\":0,\"split_mode\":\"terms\",\"chart_type\":\"line\",\"stacked\":\"none\",\"axis_position\":\"right\",\"formatter\":\"bytes\",\"id\":\"da1046f1-faa0-11e6-86b1-cd7735ff7e23\",\"fill\":\"1\"},{\"line_width\":\"0\",\"terms_field\":\"system.network.name\",\"point_size\":\"0\",\"color\":\"rgba(250,40,255,1)\",\"value_template\":\"{{value}}/s\",\"label\":\"Outbound \",\"metrics\":[{\"field\":\"system.network.out.bytes\",\"type\":\"max\",\"id\":\"fbbd7e30-faa0-11e6-86b1-cd7735ff7e23\"},{\"field\":\"fbbd7e30-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"derivative\",\"id\":\"fbbd7e31-faa0-11e6-86b1-cd7735ff7e23\",\"unit\":\"1s\"},{\"variables\":[{\"field\":\"fbbd7e31-faa0-11e6-86b1-cd7735ff7e23\",\"id\":\"1940bad0-faa1-11e6-86b1-cd7735ff7e23\",\"name\":\"rate\"}],\"type\":\"calculation\",\"id\":\"17e597a0-faa1-11e6-86b1-cd7735ff7e23\",\"script\":\"params.rate != null && params.rate > 0 ? params.rate * -1 : null\"},{\"function\":\"sum\",\"type\":\"series_agg\",\"id\":\"533da9b0-2c2d-11e7-be71-3162da85303f\"}],\"seperate_axis\":0,\"split_mode\":\"terms\",\"chart_type\":\"line\",\"stacked\":\"none\",\"axis_position\":\"right\",\"formatter\":\"bytes\",\"id\":\"fbbd5720-faa0-11e6-86b1-cd7735ff7e23\",\"fill\":\"1\"}],\"axis_formatter\":\"number\",\"interval\":\">=10s\",\"id\":\"da1046f0-faa0-11e6-86b1-cd7735ff7e23\",\"filter\":\"-system.network.name:l* system.network.name:enp139s0\",\"show_legend\":1,\"index_pattern\":\"*\",\"type\":\"timeseries\",\"axis_position\":\"left\",\"axis_scale\":\"normal\",\"show_grid\":1},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":{\"query_string\":{\"query\":\"*\"}}}}"
+      }
+    }
+  },
+  {
+    "_id": "f237c610-c5a4-11e8-9616-a72289d3ca7c",
+    "_type": "visualization",
+    "_source": {
+      "title": "Network Traffic (Bytes) enp132s0",
+      "visState": "{\"title\":\"Network Traffic (Bytes) enp132s0\",\"type\":\"metrics\",\"params\":{\"time_field\":\"@timestamp\",\"series\":[{\"line_width\":\"0\",\"terms_field\":\"system.network.name\",\"point_size\":\"0\",\"color\":\"rgba(0,156,224,1)\",\"value_template\":\"{{value}}/s\",\"label\":\"Inbound \",\"metrics\":[{\"field\":\"system.network.in.bytes\",\"type\":\"max\",\"id\":\"da1046f2-faa0-11e6-86b1-cd7735ff7e23\"},{\"field\":\"da1046f2-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"derivative\",\"id\":\"f41f9280-faa0-11e6-86b1-cd7735ff7e23\",\"unit\":\"1s\"},{\"field\":\"f41f9280-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"positive_only\",\"id\":\"a87398e0-1b93-11e7-8ada-3df93aab833e\",\"unit\":\"\"},{\"function\":\"sum\",\"type\":\"series_agg\",\"id\":\"2d533df0-2c2d-11e7-be71-3162da85303f\"}],\"seperate_axis\":0,\"split_mode\":\"terms\",\"chart_type\":\"line\",\"stacked\":\"none\",\"axis_position\":\"right\",\"formatter\":\"bytes\",\"id\":\"da1046f1-faa0-11e6-86b1-cd7735ff7e23\",\"fill\":\"1\"},{\"line_width\":\"0\",\"terms_field\":\"system.network.name\",\"point_size\":\"0\",\"color\":\"rgba(250,40,255,1)\",\"value_template\":\"{{value}}/s\",\"label\":\"Outbound \",\"metrics\":[{\"field\":\"system.network.out.bytes\",\"type\":\"max\",\"id\":\"fbbd7e30-faa0-11e6-86b1-cd7735ff7e23\"},{\"field\":\"fbbd7e30-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"derivative\",\"id\":\"fbbd7e31-faa0-11e6-86b1-cd7735ff7e23\",\"unit\":\"1s\"},{\"variables\":[{\"field\":\"fbbd7e31-faa0-11e6-86b1-cd7735ff7e23\",\"id\":\"1940bad0-faa1-11e6-86b1-cd7735ff7e23\",\"name\":\"rate\"}],\"type\":\"calculation\",\"id\":\"17e597a0-faa1-11e6-86b1-cd7735ff7e23\",\"script\":\"params.rate != null && params.rate > 0 ? params.rate * -1 : null\"},{\"function\":\"sum\",\"type\":\"series_agg\",\"id\":\"533da9b0-2c2d-11e7-be71-3162da85303f\"}],\"seperate_axis\":0,\"split_mode\":\"terms\",\"chart_type\":\"line\",\"stacked\":\"none\",\"axis_position\":\"right\",\"formatter\":\"bytes\",\"id\":\"fbbd5720-faa0-11e6-86b1-cd7735ff7e23\",\"fill\":\"1\"}],\"axis_formatter\":\"number\",\"interval\":\"10s\",\"id\":\"da1046f0-faa0-11e6-86b1-cd7735ff7e23\",\"filter\":\"-system.network.name:l* system.network.name:enp132s0\",\"show_legend\":1,\"index_pattern\":\"*\",\"type\":\"timeseries\",\"axis_position\":\"left\",\"axis_scale\":\"normal\",\"show_grid\":1},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":{\"query_string\":{\"query\":\"*\"}}}}"
+      }
+    }
+  },
+  {
+    "_id": "1b108070-c8cc-11e8-9616-a72289d3ca7c",
+    "_type": "visualization",
+    "_source": {
+      "title": "Network Traffic (Bytes) enp5s0",
+      "visState": "{\"title\":\"Network Traffic (Bytes) enp5s0\",\"type\":\"metrics\",\"params\":{\"time_field\":\"@timestamp\",\"series\":[{\"line_width\":\"0\",\"terms_field\":\"system.network.name\",\"point_size\":\"0\",\"color\":\"rgba(0,156,224,1)\",\"value_template\":\"{{value}}/s\",\"label\":\"Inbound \",\"metrics\":[{\"field\":\"system.network.in.bytes\",\"type\":\"max\",\"id\":\"da1046f2-faa0-11e6-86b1-cd7735ff7e23\"},{\"field\":\"da1046f2-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"derivative\",\"id\":\"f41f9280-faa0-11e6-86b1-cd7735ff7e23\",\"unit\":\"1s\"},{\"field\":\"f41f9280-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"positive_only\",\"id\":\"a87398e0-1b93-11e7-8ada-3df93aab833e\",\"unit\":\"\"},{\"function\":\"sum\",\"type\":\"series_agg\",\"id\":\"2d533df0-2c2d-11e7-be71-3162da85303f\"}],\"seperate_axis\":0,\"split_mode\":\"terms\",\"chart_type\":\"line\",\"stacked\":\"none\",\"axis_position\":\"right\",\"formatter\":\"bytes\",\"id\":\"da1046f1-faa0-11e6-86b1-cd7735ff7e23\",\"fill\":\"1\"},{\"line_width\":\"0\",\"terms_field\":\"system.network.name\",\"point_size\":\"0\",\"color\":\"rgba(250,40,255,1)\",\"value_template\":\"{{value}}/s\",\"label\":\"Outbound \",\"metrics\":[{\"field\":\"system.network.out.bytes\",\"type\":\"max\",\"id\":\"fbbd7e30-faa0-11e6-86b1-cd7735ff7e23\"},{\"field\":\"fbbd7e30-faa0-11e6-86b1-cd7735ff7e23\",\"type\":\"derivative\",\"id\":\"fbbd7e31-faa0-11e6-86b1-cd7735ff7e23\",\"unit\":\"1s\"},{\"variables\":[{\"field\":\"fbbd7e31-faa0-11e6-86b1-cd7735ff7e23\",\"id\":\"1940bad0-faa1-11e6-86b1-cd7735ff7e23\",\"name\":\"rate\"}],\"type\":\"calculation\",\"id\":\"17e597a0-faa1-11e6-86b1-cd7735ff7e23\",\"script\":\"params.rate != null && params.rate > 0 ? params.rate * -1 : null\"},{\"function\":\"sum\",\"type\":\"series_agg\",\"id\":\"533da9b0-2c2d-11e7-be71-3162da85303f\"}],\"seperate_axis\":0,\"split_mode\":\"terms\",\"chart_type\":\"line\",\"stacked\":\"none\",\"axis_position\":\"right\",\"formatter\":\"bytes\",\"id\":\"fbbd5720-faa0-11e6-86b1-cd7735ff7e23\",\"fill\":\"1\"}],\"axis_formatter\":\"number\",\"interval\":\"10s\",\"id\":\"da1046f0-faa0-11e6-86b1-cd7735ff7e23\",\"filter\":\"-system.network.name:l* system.network.name:enp5s0\",\"show_legend\":1,\"index_pattern\":\"*\",\"type\":\"timeseries\",\"axis_position\":\"left\",\"axis_scale\":\"normal\",\"show_grid\":1},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"language\":\"lucene\",\"query\":{\"query_string\":{\"query\":\"*\"}}}}"
+      }
+    }
+  }
+]

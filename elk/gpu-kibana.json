@@ -1,0 +1,60 @@
+[
+  {
+    "_id": "3e143fd0-c1a1-11e8-9616-a72289d3ca7c",
+    "_type": "dashboard",
+    "_source": {
+      "title": "GPU Dashboard",
+      "hits": 0,
+      "description": "",
+      "panelsJSON": "[{\"embeddableConfig\":{},\"gridData\":{\"h\":12,\"i\":\"1\",\"w\":24,\"x\":24,\"y\":0},\"id\":\"b1b1d490-c023-11e8-9616-a72289d3ca7c\",\"panelIndex\":\"1\",\"type\":\"visualization\",\"version\":\"6.4.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":9,\"i\":\"3\",\"w\":24,\"x\":0,\"y\":12},\"id\":\"bfa5e400-1b16-11e7-b09e-037021c4f8df\",\"panelIndex\":\"3\",\"type\":\"visualization\",\"version\":\"6.4.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":9,\"i\":\"4\",\"w\":24,\"x\":24,\"y\":12},\"id\":\"ab2d1e90-1b1a-11e7-b09e-037021c4f8df\",\"panelIndex\":\"4\",\"type\":\"visualization\",\"version\":\"6.4.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":12,\"i\":\"5\",\"w\":24,\"x\":0,\"y\":0},\"id\":\"98b68dc0-c1a7-11e8-9616-a72289d3ca7c\",\"panelIndex\":\"5\",\"type\":\"visualization\",\"version\":\"6.4.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":15,\"i\":\"6\",\"w\":24,\"x\":24,\"y\":21},\"id\":\"3f682aa0-c29f-11e8-9616-a72289d3ca7c\",\"panelIndex\":\"6\",\"type\":\"visualization\",\"version\":\"6.4.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":9,\"i\":\"7\",\"w\":24,\"x\":0,\"y\":21},\"id\":\"f237c610-c5a4-11e8-9616-a72289d3ca7c\",\"panelIndex\":\"7\",\"type\":\"visualization\",\"version\":\"6.4.1\"},{\"embeddableConfig\":{},\"gridData\":{\"h\":8,\"i\":\"8\",\"w\":24,\"x\":0,\"y\":30},\"id\":\"039dd070-c5a5-11e8-9616-a72289d3ca7c\",\"panelIndex\":\"8\",\"type\":\"visualization\",\"version\":\"6.4.1\"}]",
+      "optionsJSON": "{\"darkTheme\":false,\"hidePanelTitles\":false,\"useMargins\":true}",
+      "version": 1,
+      "timeRestore": false,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[{\"$state\":{\"store\":\"appState\"},\"meta\":{\"alias\":null,\"disabled\":true,\"index\":\"metricbeat-*\",\"key\":\"beat.hostname\",\"negate\":false,\"params\":[\"DGX1-2\",\"DGX1-1\"],\"type\":\"phrases\",\"value\":\"DGX1-2, DGX1-1\"},\"query\":{\"bool\":{\"minimum_should_match\":1,\"should\":[{\"match_phrase\":{\"beat.hostname\":\"DGX1-2\"}},{\"match_phrase\":{\"beat.hostname\":\"DGX1-1\"}}]}}}]}"
+      }
+    }
+  },
+  {
+    "_id": "98b68dc0-c1a7-11e8-9616-a72289d3ca7c",
+    "_type": "visualization",
+    "_source": {
+      "title": "GPU Utilization DGX1-1",
+      "visState": "{\"title\":\"GPU Utilization DGX1-1\",\"type\":\"metrics\",\"params\":{\"axis_formatter\":\"number\",\"axis_position\":\"left\",\"axis_scale\":\"normal\",\"id\":\"61ca57f0-469d-11e7-af02-69e470af7417\",\"index_pattern\":\"nvidiagpubeat-*\",\"interval\":\"auto\",\"series\":[{\"axis_position\":\"right\",\"chart_type\":\"line\",\"color\":\"#68BC00\",\"fill\":\"0.1\",\"formatter\":\"number\",\"id\":\"61ca57f1-469d-11e7-af02-69e470af7417\",\"line_width\":1,\"metrics\":[{\"id\":\"61ca57f2-469d-11e7-af02-69e470af7417\",\"type\":\"avg\",\"field\":\"utilization.gpu\"}],\"point_size\":1,\"separate_axis\":0,\"split_mode\":\"terms\",\"stacked\":\"none\",\"terms_field\":\"gpuIndex\",\"terms_order_by\":\"_term\",\"terms_direction\":\"asc\",\"filter\":\"beat.hostname:\\\"DGX1-1\\\"\"}],\"show_grid\":1,\"show_legend\":1,\"time_field\":\"@timestamp\",\"type\":\"timeseries\",\"axis_min\":\"0\",\"axis_max\":\"100\"},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "b1b1d490-c023-11e8-9616-a72289d3ca7c",
+    "_type": "visualization",
+    "_source": {
+      "title": "GPU Utilization",
+      "visState": "{\"title\":\"GPU Utilization\",\"type\":\"metrics\",\"params\":{\"axis_formatter\":\"number\",\"axis_position\":\"left\",\"axis_scale\":\"normal\",\"id\":\"61ca57f0-469d-11e7-af02-69e470af7417\",\"index_pattern\":\"nvidiagpubeat-*\",\"interval\":\"auto\",\"series\":[{\"axis_position\":\"right\",\"chart_type\":\"line\",\"color\":\"#68BC00\",\"fill\":\"0.1\",\"formatter\":\"number\",\"id\":\"61ca57f1-469d-11e7-af02-69e470af7417\",\"line_width\":1,\"metrics\":[{\"id\":\"61ca57f2-469d-11e7-af02-69e470af7417\",\"type\":\"avg\",\"field\":\"utilization.gpu\"}],\"point_size\":1,\"separate_axis\":0,\"split_mode\":\"terms\",\"stacked\":\"none\",\"terms_field\":\"beat.hostname\",\"terms_order_by\":\"_term\",\"terms_direction\":\"asc\"}],\"show_grid\":1,\"show_legend\":1,\"time_field\":\"@timestamp\",\"type\":\"timeseries\",\"axis_min\":\"0\",\"axis_max\":\"100\"},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"query\":{\"language\":\"lucene\",\"query\":\"\"},\"filter\":[]}"
+      }
+    }
+  },
+  {
+    "_id": "3f682aa0-c29f-11e8-9616-a72289d3ca7c",
+    "_type": "visualization",
+    "_source": {
+      "title": "GPU Memory Usage",
+      "visState": "{\"title\":\"GPU Memory Usage\",\"type\":\"metrics\",\"params\":{\"time_field\":\"@timestamp\",\"series\":[{\"line_width\":1,\"point_size\":\"0\",\"color\":\"rgba(211,49,21,1)\",\"label\":\"Used\",\"metrics\":[{\"field\":\"memory.used\",\"type\":\"avg\",\"id\":\"4ff61fd1-1b16-11e7-b09e-037021c4f8df\"}],\"seperate_axis\":0,\"split_mode\":\"everything\",\"chart_type\":\"line\",\"stacked\":\"stacked\",\"axis_position\":\"right\",\"formatter\":\"number\",\"id\":\"4ff61fd0-1b16-11e7-b09e-037021c4f8df\",\"fill\":\"1\",\"value_template\":\"{{value}} MB\"},{\"line_width\":1,\"point_size\":\"0\",\"color\":\"#68BC00\",\"label\":\"Free\",\"metrics\":[{\"field\":\"memory.free\",\"type\":\"avg\",\"id\":\"32f46f42-1b16-11e7-b09e-037021c4f8df\"}],\"seperate_axis\":0,\"split_mode\":\"everything\",\"chart_type\":\"line\",\"stacked\":\"stacked\",\"axis_position\":\"right\",\"formatter\":\"number\",\"id\":\"32f46f41-1b16-11e7-b09e-037021c4f8df\",\"fill\":\"1\",\"value_template\":\"{{value}} MB\"}],\"axis_formatter\":\"number\",\"interval\":\"auto\",\"id\":\"32f46f40-1b16-11e7-b09e-037021c4f8df\",\"show_legend\":1,\"show_grid\":1,\"index_pattern\":\"nvidiagpubeat-*\",\"type\":\"timeseries\",\"axis_position\":\"left\",\"axis_scale\":\"normal\"},\"aggs\":[]}",
+      "uiStateJSON": "{}",
+      "description": "",
+      "version": 1,
+      "kibanaSavedObjectMeta": {
+        "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":{\"query_string\":{\"query\":\"*\"}},\"language\":\"lucene\"}}"
+      }
+    }
+  }
+]
