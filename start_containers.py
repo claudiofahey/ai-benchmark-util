@@ -15,6 +15,7 @@ import subprocess
 from multiprocessing import Pool
 import functools
 
+
 def start_container(args, host):
     cmd = [
         'ssh',
@@ -34,14 +35,11 @@ def start_container(args, host):
         '-v', '%s:/tensorflow-benchmarks' % args.benchmarks_dir,
         '-v', '%s:/imagenet-data:ro' % args.imagenet_data_dir,
         '-v', '%s:/imagenet-scratch' % args.imagenet_scratch_dir,
-        ]
-    for i in range(1, 16+1):
-        cmd += ['-v', '/mnt/isilon%d/data/imagenet-scratch:/imagenet-scratch%d' % (i, i)]
-    cmd += [
+        '-v', '/mnt:/mnt',
         '--network=host',
         '--shm-size=1g', '--ulimit', 'memlock=-1', '--ulimit', 'stack=67108864',
         '--name', args.container_name,
-        'claudiofahey/tensorflow:18.09-py3-custom',
+        args.docker_image,
         'bash', '-c', '"/usr/sbin/sshd ; sleep infinity"',
     ]
     print(' '.join(cmd))
@@ -55,7 +53,7 @@ def start_containers(args):
 
 def main():
     parser = argparse.ArgumentParser(description='Start Docker containers for TensorFlow benchmarking')
-    parser.add_argument('-H','--host', action='append', required=True,
+    parser.add_argument('-H', '--host', action='append', required=True,
                         help='List of hosts on which to invoke processes.')
     parser.add_argument('--scripts_dir', action='store', required=True,
                         help='Fully qualified path to the scripts directory.')
@@ -67,6 +65,8 @@ def main():
                         help='Fully qualified path to the ImageNet scratch directory.')
     parser.add_argument('--container_name', action='store', default='tf',
                         help='Name to assign to the containers.')
+    parser.add_argument('--docker_image', action='store', default='claudiofahey/tensorflow:18.09-py3-custom',
+                        help='Docker image tag.')
     args = parser.parse_args()
     start_containers(args)
 

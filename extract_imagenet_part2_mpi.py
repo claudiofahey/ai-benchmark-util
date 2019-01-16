@@ -16,13 +16,14 @@ import subprocess
 from os.path import join, basename, splitext
 from glob import glob
 
+
 def worker(rank, size, data_in_dir, data_out_dir):
     in_files = sorted(glob(join(data_in_dir, '*.tar')))
     num_files = len(in_files)
 
     # use round-robin scheduling
     i = rank    
-    while (i < num_files):
+    while i < num_files:
         in_file_name = in_files[i]
         label = splitext(basename(in_file_name))[0]
         out_dir_name = join(data_out_dir, label)
@@ -32,10 +33,11 @@ def worker(rank, size, data_in_dir, data_out_dir):
         i += size
     return
 
+
 def main():
     parser = argparse.ArgumentParser(description='Data augmentation with random transformations')
-    parser.add_argument('-i','--input_data_dir', help='Input data directory', required=True)
-    parser.add_argument('-o','--output_data_dir', help='Output data directory', required=True)
+    parser.add_argument('-i', '--input_data_dir', help='Input data directory', required=True)
+    parser.add_argument('-o', '--output_data_dir', help='Output data directory', required=True)
     args = vars(parser.parse_args())
 
     data_input_dir = args['input_data_dir']
@@ -45,6 +47,7 @@ def main():
     size = int(os.environ['OMPI_COMM_WORLD_SIZE'])
 
     worker(rank, size, data_input_dir, data_output_dir)
+
 
 if __name__ == '__main__':
     main()
