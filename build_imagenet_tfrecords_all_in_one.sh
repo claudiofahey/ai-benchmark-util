@@ -59,7 +59,7 @@ tar xvf "${TRAIN_TARBALL}" -C "${TRAIN_DIRECTORY}"
 
 # Extract the training files nXXXXXXXX.tar to nXXXXXXXX/*.JPG.
 mpirun --allow-run-as-root -np 8 -H localhost:8 ./extract_imagenet_part2_mpi.py -i "${TRAIN_DIRECTORY}" -o "${TRAIN_DIRECTORY}"
-rm -rf /imagenet-scratch/train/*.tar
+rm -rf "${TRAIN_DIRECTORY}"*.tar
 
 # Build TFRecord files.
 mkdir -p "${OUTPUT_DIRECTORY}"
