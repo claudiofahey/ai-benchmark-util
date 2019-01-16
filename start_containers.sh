@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
+# This script starts the TensorFlow Docker container on multiple hosts.
+# You may add multiple -H parameters, one for each hostname.
+
 ./start_containers.py \
--H DGX1-1 \
--H DGX1-2 \
--H DGX1-3 \
--H DGX1-4 \
--H DGX1-5 \
--H DGX1-6 \
--H DGX1-7 \
--H DGX1-8 \
--H DGX1-9 \
+-H localhost \
 --scripts_dir /mnt/isilon/data/tf-bench-util \
 --benchmarks_dir /mnt/isilon/data/tensorflow-benchmarks \
 --imagenet_data_dir /mnt/isilon/data/imagenet-data \
