@@ -1,7 +1,7 @@
 
-# Build with: docker build -t claudiofahey/tensorflow:18.09-py3-custom .
+# Build with: docker build -t claudiofahey/tensorflow:19.01-py3-custom .
 
-FROM nvcr.io/nvidia/tensorflow:18.09-py3
+FROM nvcr.io/nvidia/tensorflow:19.01-py3
 
 MAINTAINER Claudio Fahey <Claudio.Fahey@dell.com>
 

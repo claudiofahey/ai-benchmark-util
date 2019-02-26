@@ -26,7 +26,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
     num_hosts = len(args.host)
 
     if args.eval:
-        run_id = '2018-10-02-22-58-02-resnet50'
+        run_id = args.run_id
         train_dir = os.path.join(args.train_dir, run_id)
         eval_cmd = [
             '--eval',
@@ -36,7 +36,6 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         train_dir = os.path.join(args.train_dir, run_id)
         eval_cmd = [
             '--forward_only',
-            # '--freeze_when_forward_only',
             '--summary_verbosity=1',
             '--save_summaries_steps=100',
         ]
@@ -54,7 +53,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         cmd = [
             'ssh',
             '-p', '22',
-            'root@10.55.67.211',
+            '%s@%s' % (args.isilon_user, args.isilon_host),
             'isi_for_array', 'isi_flush',
         ]
         print(' '.join(cmd))
@@ -86,8 +85,6 @@ def run_tf_cnn_benchmarks(args, unknown_args):
             '-allow-run-as-root',
             '--host', mpi_hosts,
             '--report-bindings',
-            # '--map-by', 'numa:PE=5',
-            # '-rf', 'rankfile',
             '-bind-to', 'none',
             '-map-by', 'slot',
             '-x', 'LD_LIBRARY_PATH',
@@ -113,13 +110,12 @@ def run_tf_cnn_benchmarks(args, unknown_args):
     cmd = mpirun_cmd + [
         'python',
         '-u',
-        #'-m', 'cProfile', '-s', 'cumtime', # Enable python profiling
         '/tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py',
         '--model=%s' % args.model,
         '--batch_size=256',
-        '--batch_group_size=20',
+        '--batch_group_size=10',
         # '--num_epochs=4',
-        '--num_batches=50000',
+        '--num_batches=500',
         '--nodistortions',
         '--num_gpus=1',
         '--device=gpu',
@@ -131,16 +127,10 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--use_datasets=True',
         '--data_dir=/imagenet-scratch1/tfrecords',  # Note that this is overridden by round_robin_mpi.py
         '--num_intra_threads=1',
-        '--num_inter_threads=10',
+        '--num_inter_threads=40',
         '--datasets_prefetch_buffer_size=20',
-        '--datasets_num_private_threads=10',
-        # '--cache_data',
-        #'--resize_method=bilinear',
+        '--datasets_num_private_threads=2',
         '--train_dir=%s' % train_dir,
-        # '--tfprof_file=/imagenet-scratch/tfprof_file',
-        # '--use_chrome_trace_format',
-        # '--trace_file=/imagenet-scratch/trace_file',
-        # '--fuse_decode_and_crop=False'
         '--sync_on_finish=True',
         ] + eval_cmd + horovod_parameters
 
@@ -169,8 +159,12 @@ def main():
                         help='Perform inference instead of training.')
     parser.add_argument('--forward_only', action='store_true',
                         help='Perform inference instead of training.')
-    parser.add_argument('--model', action='store', default='resnet50_v2')
+    parser.add_argument('--model', action='store', default='resnet50')
     parser.add_argument('--run_id', action='store')
+    parser.add_argument('--isilon_host', action='store',
+                        help='IP address or hostname of an Isilon node. You must enable password-less SSH.')
+    parser.add_argument('--isilon_user', action='store', default='root',
+                        help='SSH user used to connect to Isilon.')
     args, unknown_args = parser.parse_known_args()
     run_tf_cnn_benchmarks(args, unknown_args)
 
