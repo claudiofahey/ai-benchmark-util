@@ -3,7 +3,12 @@
 import subprocess
 
 
-hosts = ["dgx2-1", "dgx2-2", "dgx2-3"]
+hosts = [
+    "dgx2-1", 
+    "dgx2-2", 
+    "dgx2-3",
+]
+mount = True
 
 for host in hosts[1:]:
         isilon_ip = "172.28.10.151"
@@ -23,16 +28,17 @@ for host in hosts[1:]:
         print(cmd)
         subprocess.run(cmd, check=False)
 
-        cmd = [
-            "ssh",
-            "root@%s" % host,
-            "mount",
-            "-t", "nfs",
-            "%s:/ifs" % isilon_ip,
-            "/mnt/isilon"
-        ]
-        print(cmd)
-        subprocess.run(cmd, check=True)
+        if mount:
+            cmd = [
+                "ssh",
+                "root@%s" % host,
+                "mount",
+                "-t", "nfs",
+                "%s:/ifs" % isilon_ip,
+                "/mnt/isilon"
+            ]
+            print(cmd)
+            subprocess.run(cmd, check=True)
 
 for host in hosts:
     for mount_number in range(1, 16+1):
@@ -54,14 +60,15 @@ for host in hosts:
         print(cmd)
         subprocess.run(cmd, check=False)
 
-        cmd = [
-            "ssh",
-            "root@%s" % host,
-            "mount",
-            "-t", "nfs",
-            "-o", "rsize=524288,wsize=524288,nolock,soft,timeo=50,retrans=1,proto=tcp",
-            "%s:/ifs" % isilon_ip,
-            "/mnt/isilon%d" % mount_number,
-        ]
-        print(cmd)
-        subprocess.run(cmd, check=True)
+        if mount:
+            cmd = [
+                "ssh",
+                "root@%s" % host,
+                "mount",
+                "-t", "nfs",
+                "-o", "rsize=524288,wsize=524288,nolock,soft,timeo=50,retrans=1,proto=tcp",
+                "%s:/ifs" % isilon_ip,
+                "/mnt/isilon%d" % mount_number,
+            ]
+            print(cmd)
+            subprocess.run(cmd, check=True)

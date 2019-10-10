@@ -26,30 +26,31 @@ def start_container(args, host):
     print(' '.join(cmd))
     subprocess.run(cmd, check=False)
 
-    cmd = [
-        'ssh',
-        '-p', '22',
-        '%s@%s' % (args.user, host),
-        'nvidia-docker',
-        'run',
-        '--rm',
-        '--detach',
-        '--privileged',
-        '-v', '%s:/scripts' % args.scripts_dir,
-        '-v', '%s:/tensorflow-benchmarks' % args.benchmarks_dir,
-        '-v', '%s:/imagenet-data:ro' % args.imagenet_data_dir,
-        '-v', '%s:/imagenet-scratch' % args.imagenet_scratch_dir,
-        '-v', '/mnt:/mnt',
-        '--network=host',
-        '--shm-size=1g',
-        '--ulimit', 'memlock=-1',
-        '--ulimit', 'stack=67108864',
-        '--name', args.container_name,
-        args.docker_image,
-        'bash', '-c', '"/usr/sbin/sshd ; sleep infinity"',
-    ]
-    print(' '.join(cmd))
-    subprocess.run(cmd, check=True)
+    if args.start:
+        cmd = [
+            'ssh',
+            '-p', '22',
+            '%s@%s' % (args.user, host),
+            'nvidia-docker',
+            'run',
+            '--rm',
+            '--detach',
+            '--privileged',
+            '-v', '%s:/scripts' % args.scripts_dir,
+            '-v', '%s:/tensorflow-benchmarks' % args.benchmarks_dir,
+            '-v', '%s:/imagenet-data:ro' % args.imagenet_data_dir,
+            '-v', '%s:/imagenet-scratch' % args.imagenet_scratch_dir,
+            '-v', '/mnt:/mnt',
+            '--network=host',
+            '--shm-size=1g',
+            '--ulimit', 'memlock=-1',
+            '--ulimit', 'stack=67108864',
+            '--name', args.container_name,
+            args.docker_image,
+            'bash', '-c', '"/usr/sbin/sshd ; sleep infinity"',
+        ]
+        print(' '.join(cmd))
+        subprocess.run(cmd, check=True)
 
 
 def start_containers(args):
@@ -81,6 +82,9 @@ def main():
     parser.add_argument('--user', action='store',
                         default='root',
                         help='SSH user')
+    parser.add_argument('--nostart', dest='start', action='store_false', 
+                        default=True,
+                        help='Start containers')
     args = parser.parse_args()
     start_containers(args)
 
