@@ -24,7 +24,7 @@ def main():
 
     rank = int(os.environ['OMPI_COMM_WORLD_RANK'])
 
-    i = 1 + (rank % 4)
+    i = 1 + (rank % 16)
     cmd += ['--data_dir=/mnt/isilon%d/data/imagenet-scratch/tfrecords' % i]
 
     print('round_robin_mpi.py: ' + ' '.join(cmd))

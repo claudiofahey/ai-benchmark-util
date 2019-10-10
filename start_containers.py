@@ -20,7 +20,7 @@ def start_container(args, host):
     cmd = [
         'ssh',
         '-p', '22',
-        host,
+        '%s@%s' % (args.user, host),
         'docker', 'stop', args.container_name,
     ]
     print(' '.join(cmd))
@@ -29,7 +29,7 @@ def start_container(args, host):
     cmd = [
         'ssh',
         '-p', '22',
-        host,
+        '%s@%s' % (args.user, host),
         'nvidia-docker',
         'run',
         '--rm',
@@ -76,8 +76,11 @@ def main():
     parser.add_argument('--container_name', action='store', default='tf',
                         help='Name to assign to the containers.')
     parser.add_argument('--docker_image', action='store',
-                        default='user/tensorflow:19.01-py3-custom',
+                        default='claudiofahey/tensorflow:19.03-py3-custom',
                         help='Docker image tag.')
+    parser.add_argument('--user', action='store',
+                        default='root',
+                        help='SSH user')
     args = parser.parse_args()
     start_containers(args)
 

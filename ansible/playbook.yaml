@@ -1,0 +1,16 @@
+- name: Prometheus Node Exporter
+  hosts: ["all"]
+  tags: ["node-exporter"]
+  roles:
+    - cloudalchemy.node-exporter
+
+- name: NVIDIA GPU Exporter
+  hosts: ["all"]
+  tags: ["nvidia"]
+  tasks:
+    - shell: |
+        docker rm --force nvidia_gpu_prometheus_exporter ; \
+        nvidia-docker run -d \
+        -p 9445:9445 \
+        --name nvidia_gpu_prometheus_exporter \
+        mindprince/nvidia_gpu_prometheus_exporter:0.1

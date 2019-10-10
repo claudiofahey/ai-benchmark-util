@@ -93,13 +93,13 @@ def run_tf_cnn_benchmarks(args, unknown_args):
             '-mca', 'plm_rsh_args', '"-p 2222"',
             '-mca', 'pml', 'ob1',
             '-mca', 'btl', '^openib',
-            '-mca', 'btl_tcp_if_include', 'enp132s0',        # force to use this TCP interface for MPI BTL
+            '-mca', 'btl_tcp_if_include', 'enp53s0',         # force to use this TCP interface for MPI BTL
             '-x', 'NCCL_DEBUG=INFO',                         # Enable debug logging
             '-x', 'NCCL_IB_HCA=mlx5',                        # Assign the RoCE interface for NCCL - this allows all 4 NICs to be used
             '-x', 'NCCL_IB_SL=4',                            # InfiniBand Service Level
             '-x', 'NCCL_IB_GID_INDEX=3',                     # RoCE priority
             '-x', 'NCCL_NET_GDR_READ=1',                     # RoCE receive to memory directly
-            '-x', 'NCCL_SOCKET_IFNAME=^docker0',             # Do not let NCCL use docker0 interface. See https://github.com/uber/horovod/blob/master/docs/running.md#hangs-due-to-non-routed-network-interfaces.
+            '-x', 'NCCL_SOCKET_IFNAME=^docker0,lo',          # Do not let NCCL use docker0 interface. See https://github.com/uber/horovod/blob/master/docs/running.md#hangs-due-to-non-routed-network-interfaces.
             './round_robin_mpi.py',
         ]
         horovod_parameters = [
@@ -115,7 +115,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--batch_size=256',
         '--batch_group_size=10',
         # '--num_epochs=4',
-        '--num_batches=500',
+        '--num_batches=5000',
         '--nodistortions',
         '--num_gpus=1',
         '--device=gpu',

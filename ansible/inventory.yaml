@@ -1,0 +1,6 @@
+all:
+  hosts:
+    dgx2-1:
+    dgx2-2:
+    dgx2-3:
+

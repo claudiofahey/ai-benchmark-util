@@ -1,0 +1,6 @@
+- name: Prometheus Node Exporter
+  #hosts: ["!tier2"]
+  tags: ["node-exporter"]
+  roles:
+    - cloudalchemy.node-exporter
+

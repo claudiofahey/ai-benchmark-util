@@ -1,0 +1,14 @@
+extraScrapeConfigs: |
+  - job_name: dgx
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - 172.28.10.180:9100
+          - 172.28.10.180:9445
+          - 172.28.10.181:9100
+          - 172.28.10.181:9445
+          - 172.28.10.182:9100
+          - 172.28.10.182:9445
+        labels:
+          group: dgx
+
