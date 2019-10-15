@@ -32,6 +32,17 @@ def start_container(args, host):
             '-p', '22',
             '%s@%s' % (args.user, host),
             'nvidia-docker',
+            'pull',
+            args.docker_image,
+        ]
+        print(' '.join(cmd))
+        subprocess.run(cmd, check=True)
+
+        cmd = [
+            'ssh',
+            '-p', '22',
+            '%s@%s' % (args.user, host),
+            'nvidia-docker',
             'run',
             '--rm',
             '--detach',

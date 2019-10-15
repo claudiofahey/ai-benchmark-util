@@ -115,7 +115,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--batch_size=256',
         '--batch_group_size=10',
         # '--num_epochs=4',
-        '--num_batches=5000',
+        '--num_batches=500',
         '--nodistortions',
         '--num_gpus=1',
         '--device=gpu',
