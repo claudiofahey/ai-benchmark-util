@@ -11,7 +11,7 @@ hosts = [
 mount = True
 
 for host in hosts[1:]:
-        isilon_ip = "172.28.10.151"
+        isilon_ip = "10.200.10.151"
         cmd = [
             "ssh",
             "root@%s" % host,

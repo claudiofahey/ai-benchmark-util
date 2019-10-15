@@ -7,16 +7,10 @@ mkdir -p "${out_dir}"
 
 time mpirun \
 --allow-run-as-root \
--np 72 \
--H DGX1-1:8 \
--H DGX1-2:8 \
--H DGX1-3:8 \
--H DGX1-4:8 \
--H DGX1-5:8 \
--H DGX1-6:8 \
--H DGX1-7:8 \
--H DGX1-8:8 \
--H DGX1-9:8 \
+-np 48 \
+-H dgx2-1:16 \
+-H dgx2-2:16 \
+-H dgx2-3:16 \
 -bind-to none \
 --map-by node \
 -mca plm_rsh_agent ssh \
