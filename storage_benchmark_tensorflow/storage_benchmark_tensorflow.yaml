@@ -1,0 +1,26 @@
+batch_size: 256
+input_file_specs:
+  - "/mnt/isilon1/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon2/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon3/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon4/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon5/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon6/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon7/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon8/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon9/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon10/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon11/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon12/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon13/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon14/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon15/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/isilon16/data/imagenet-scratch/tfrecords-150x/train-*"
+metrics_directory: /imagenet-scratch/logs
+num_threads: 0
+parallel_interleave_cycle_length: 0
+round_robin_files: true
+run_sec: 300
+sync: true
+throttle_total_rate_bytes_per_sec: 0
+warmup_sec: 120

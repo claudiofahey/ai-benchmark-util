@@ -1,0 +1,10 @@
+batch_size: 256
+input_file_specs:
+  - "/mnt/isilon1/data/imagenet-scratch/tfrecords/train-*"
+metrics_directory: /imagenet-scratch/logs
+num_threads: 0
+parallel_interleave_cycle_length: 0
+round_robin_files: true
+run_sec: 300
+sync: false
+throttle_total_rate_bytes_per_sec: 0

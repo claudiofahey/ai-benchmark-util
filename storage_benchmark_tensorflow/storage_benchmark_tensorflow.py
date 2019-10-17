@@ -9,9 +9,12 @@
 This uses TensorFlow to read a set of TFRecord files and show the throughput.
 It can read files synchronously (all processes stay at the same step) or
 asynchronously (all processes are independent).
+
+To install:
+pip install --user --requirement requirements.txt
 """
 
-import argparse
+import configargparse
 import time
 import socket
 import horovod.tensorflow as hvd
@@ -20,6 +23,7 @@ import numpy as np
 import datetime
 import glob
 import json
+import os
 from tensorflow.contrib.data.python.ops import batching
 from tensorflow.contrib.data.python.ops import interleave_ops
 from tensorflow.contrib.data.python.ops import threadpool
@@ -36,9 +40,7 @@ def process_record(example_serialized):
     return num_bytes
 
 
-def create_iterator(
-        batch_size, num_threads, parallel_interleave_cycle_length=0, input_file_spec=None, input_filenames=None,
-        dataset_buffer_size=None, prefetch_records=None):
+def create_iterator(input_file_spec, input_filenames, opts):
     if input_filenames:
         ds = tf.data.Dataset.from_tensor_slices(tf.convert_to_tensor(input_filenames))
     elif input_file_spec:
@@ -46,29 +48,29 @@ def create_iterator(
     else:
         raise ValueError('You must specify input_file_spec or input_filenames')
 
-    if parallel_interleave_cycle_length:
+    if opts.parallel_interleave_cycle_length:
         ds = ds.apply(
             interleave_ops.parallel_interleave(
-                lambda f: tf.data.TFRecordDataset(f, buffer_size=dataset_buffer_size),
-                cycle_length=parallel_interleave_cycle_length))
+                lambda f: tf.data.TFRecordDataset(f, buffer_size=opts.dataset_buffer_size),
+                cycle_length=opts.parallel_interleave_cycle_length))
     else:
         ds = ds.apply(tf.data.TFRecordDataset)
 
-    ds = ds.prefetch(buffer_size=prefetch_records)
+    ds = ds.prefetch(buffer_size=opts.prefetch_records)
     ds = ds.repeat()
     num_splits = 1
     ds = ds.apply(
         batching.map_and_batch(
             map_func=process_record,
-            batch_size=batch_size,
+            batch_size=opts.batch_size,
             num_parallel_batches=num_splits))
     ds = ds.prefetch(buffer_size=num_splits)
 
-    if num_threads:
+    if opts.num_threads:
         ds = threadpool.override_threadpool(
             ds,
             threadpool.PrivateThreadPool(
-                num_threads, display_name='input_pipeline_thread_pool'))
+                opts.num_threads, display_name='input_pipeline_thread_pool'))
         ds_iterator = ds.make_initializable_iterator()
         tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS,
                              ds_iterator.initializer)
@@ -77,16 +79,12 @@ def create_iterator(
     return ds_iterator
 
 
-def worker(
-        rank, size, input_file_specs, batch_size=2048, warmup_sec=10.0, run_sec=60*60*8, num_threads=0, sync=True,
-        warn_latency_sec=4.0, report_period_sec=2.0, round_robin_files=True,
-        throttle_sleep_sec=0.01, throttle_total_rate_bytes_per_sec=0):
-
+def worker(rank, size, opts):
     if rank == 0:
         print('storage_benchmark_tensorflow: BEGIN')
         print(datetime.datetime.utcnow())
 
-    metrics_file_name = '/imagenet-scratch/logs/storage_benchmark_tensorflow_metrics-%d.log' % rank
+    metrics_file_name = os.path.join(opts.metrics_directory, 'storage_benchmark_tensorflow_metrics-%d.log' % rank)
     with open(metrics_file_name, 'a') as metrics_file:
 
         hostname = socket.gethostname()
@@ -95,10 +93,10 @@ def worker(
         tf.set_random_seed(rank + 1)
 
         # Round robin the input file spec. This allows multiple mount points to be used.
-        input_file_spec = input_file_specs[hvd.local_rank() % len(input_file_specs)]
+        input_file_spec = opts.input_file_specs[hvd.local_rank() % len(opts.input_file_specs)]
         print('rank=%3d: %s: input_file_spec=%s' % (rank, hostname, input_file_spec))
 
-        if round_robin_files:
+        if opts.round_robin_files:
             # Distribute sets of file names evenly over all processes and without overlap.
             all_input_filenames = sorted(glob.glob(input_file_spec))
             num_files = len(all_input_filenames)
@@ -119,7 +117,7 @@ def worker(
         # Build execution graph.
         #
 
-        ds_iterator = create_iterator(batch_size, num_threads, input_file_spec=input_file_spec, input_filenames=input_filenames)
+        ds_iterator = create_iterator(input_file_spec, input_filenames, opts)
 
         # num_bytes_tensor is an int64 tensor of shape (batch_size).
         num_bytes_tensor = ds_iterator.get_next()
@@ -128,7 +126,7 @@ def worker(
         num_bytes_for_step_tensor = tf.reduce_sum(num_bytes_tensor)
 
         # The following operations are used to synchronize the processes when running in sync mode.
-        if sync:
+        if opts.sync:
             stop_flag_placeholder = tf.placeholder(tf.bool, shape=())
             stop_flag_broadcast_tensor = hvd.broadcast(stop_flag_placeholder, 0, 'stop_flag_broadcast')
             num_bytes_for_step_placeholder = tf.placeholder(tf.int64, shape=())
@@ -167,19 +165,19 @@ def worker(
             t0_tensor = hvd.broadcast(t0_tensor, 0, 't0')
             t0 = session.run(t0_tensor)
 
-            start_time = t0 + warmup_sec
-            stop_time = start_time + run_sec
+            start_time = t0 + opts.warmup_sec
+            stop_time = start_time + opts.run_sec
             step = 0
             warmed_up = False
             num_records = 0
             num_bytes = 0
             total_bytes = 0
-            next_report_time = time.time() + report_period_sec
+            next_report_time = time.time() + opts.report_period_sec
 
-            if throttle_total_rate_bytes_per_sec:
-                throttle_rate_bytes_per_sec = throttle_total_rate_bytes_per_sec / size
+            if opts.throttle_total_rate_bytes_per_sec:
+                throttle_rate_bytes_per_sec = opts.throttle_total_rate_bytes_per_sec / size
                 burst_sec = 1.0
-                throttle = TokenBucket(tokens=throttle_rate_bytes_per_sec*burst_sec, fill_rate=throttle_rate_bytes_per_sec)
+                throttle = TokenBucket(tokens=opts.throttle_rate_bytes_per_sec*burst_sec, fill_rate=throttle_rate_bytes_per_sec)
             else:
                 throttle = None
 
@@ -206,7 +204,7 @@ def worker(
 
                 step_dt = time.time() - t
 
-                if (warmed_up or step >= 1) and step_dt > warn_latency_sec:
+                if (warmed_up or step >= 1) and step_dt > opts.warn_latency_sec:
                     print('rank=%3d: %s: WARNING: step %d took %0.3f seconds' %
                           (rank, hostname, step, step_dt))
                     next_report_time = 0.0
@@ -219,7 +217,7 @@ def worker(
                 # it shares gradients.
                 # Also coordinate the stop flag so all processes stop at the same step.
                 sync_dt = 0.0
-                if sync:
+                if opts.sync:
                     t = time.time()
                     total_bytes_for_step, stop_flag = session.run(
                         [total_bytes_for_step_tensor, stop_flag_broadcast_tensor],
@@ -237,13 +235,13 @@ def worker(
                               (rank, hostname, step, sync_dt))
                         next_report_time = 0.0
 
-                num_records += batch_size
+                num_records += opts.batch_size
                 num_bytes += num_bytes_for_step
                 t = time.time()
 
                 metrics = {
                     '@timestamp': datetime.datetime.utcnow().isoformat() + 'Z',
-                    'batch_size': batch_size,
+                    'batch_size': opts.batch_size,
                     'rank': rank,
                     'hostname': hostname,
                     'step': step,
@@ -257,13 +255,13 @@ def worker(
 
                 if t >= next_report_time:
                     dt = t - t0
-                    if not sync:
+                    if not opts.sync:
                         records_per_sec = num_records / dt
                         bytes_per_sec = num_bytes / dt
                         MB_per_sec = bytes_per_sec / 1e6
                         print('rank=%3d: warmed_up=%d, step=%6d, records/sec=%8.0f, MB/sec=%11.3f, records=%10d, bytes=%15d, dt=%9.3f' %
                               (rank, warmed_up, step, records_per_sec, MB_per_sec, num_records, num_bytes, dt))
-                    if sync:
+                    if opts.sync:
                         if rank == 0:
                             total_records = num_records * size
                             records_per_sec = total_records / dt
@@ -271,13 +269,13 @@ def worker(
                             MB_per_sec = bytes_per_sec / 1e6
                             print('TOTAL:    warmed up=%d, step=%6d, records/sec=%8.0f, MB/sec=%11.3f, records=%10d, bytes=%15d, dt=%9.3f' %
                                 (warmed_up, step, records_per_sec, MB_per_sec, total_records, total_bytes, dt))
-                    next_report_time = t + report_period_sec
+                    next_report_time = t + opts.report_period_sec
 
                 # Throttle byte rate.
                 if throttle:
                     while not throttle.consume(num_bytes_for_step):
                         # print('sleeping')
-                        time.sleep(throttle_sleep_sec)
+                        time.sleep(opts.throttle_sleep_sec)
 
                 if stop_flag:
                     print('rank=%3d: %s: complete at step %d' % (rank, hostname, step))
@@ -293,31 +291,52 @@ def worker(
             total_steps, total_bytes = session.run([total_steps_tensor, total_bytes_tensor])
             if rank == 0:
                 dt = stop_time - start_time
-                num_records = total_steps * batch_size
+                num_records = total_steps * opts.batch_size
                 records_per_sec = num_records / dt
                 total_GB = total_bytes / 1e9
                 bytes_per_sec = total_bytes / dt
                 MB_per_sec = bytes_per_sec / 1e6
                 print('FINAL: number of processes: %12d' % size)
-                print('FINAL: batch size:          %12d' % batch_size)
-                print('FINAL: sync:                %12s' % sync)
-                print('FINAL: round robin files:   %12s' % round_robin_files)
+                print('FINAL: batch size:          %12d' % opts.batch_size)
+                print('FINAL: sync:                %12s' % opts.sync)
+                print('FINAL: round robin files:   %12s' % opts.round_robin_files)
                 print('FINAL: number of records:   %12d' % num_records)
                 print('FINAL: GB:                  %12.3f' % total_GB)
                 print('FINAL: elapsed sec:         %12.3f' % dt)
                 print('FINAL: records/sec:         %12.0f' % records_per_sec)
                 print('FINAL: MB/sec:              %12.3f' % MB_per_sec)
+                print('FINAL: options:             %s' % str(opts))
 
         if rank == 0:
             print('storage_benchmark_tensorflow: END')
 
 
 def main():
-    parser = argparse.ArgumentParser(description='')
-    parser.add_argument('-i', '--input_file_specs', action='append', help='Input file spec', required=True)
-    args = parser.parse_args()
+    parser = configargparse.ArgParser(
+        config_file_parser_class=configargparse.YAMLConfigFileParser,
+        default_config_files=['storage_benchmark_tensorflow.yaml'],
+    )
+    parser.add('--batch_size', type=int, default=256, help='Number of records per batch')
+    parser.add('--config', '-c', required=False, is_config_file=True, help='config file path')
+    parser.add('--dataset_buffer_size', type=int, nargs='?', help='')
+    parser.add('--input_file_specs', '-i', action='append', help='Input file spec', required=True)
+    parser.add('--metrics_directory', default='/tmp', help='')
+    parser.add('--num_threads', type=int, default=0, help='Number of threads')
+    parser.add('--parallel_interleave_cycle_length', type=int, default=0, help='')
+    parser.add('--prefetch_records', type=int, nargs='?', help='')
+    parser.add('--report_period_sec', type=float, default=2.0, help='Report statistics with this period in seconds')
+    parser.add('--round_robin_files', action='store_true', help='')
+    parser.add('--run_sec', type=float, default=60*60*4, help='Run time in seconds')
+    parser.add('--sync', action='store_true', help='Synchronize workers after each batch')
+    parser.add('--throttle_sleep_sec', type=float, default=0.01, help='')
+    parser.add('--throttle_total_rate_bytes_per_sec', type=float, default=0, help='If 0, unthrottled')
+    parser.add('--warmup_sec', type=float, default=10.0, help='Warm-up time in seconds')
+    parser.add('--warn_latency_sec', type=float, default=4.0, help='Warn if read latency exceeds this many seconds')
+    opts = parser.parse_args()
+    print('storage_benchmark_tensorflow: Options: %s' % str(opts))
+
     hvd.init()
-    worker(hvd.rank(), hvd.size(), args.input_file_specs)
+    worker(hvd.rank(), hvd.size(), opts)
 
 
 if __name__ == '__main__':
