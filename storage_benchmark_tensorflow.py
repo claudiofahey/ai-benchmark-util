@@ -78,7 +78,7 @@ def create_iterator(
 
 
 def worker(
-        rank, size, input_file_specs, batch_size=256, warmup_sec=10.0, run_sec=60*60*4, num_threads=0, sync=False,
+        rank, size, input_file_specs, batch_size=256, warmup_sec=10.0, run_sec=60*60*4, num_threads=0, sync=True,
         warn_latency_sec=4.0, report_period_sec=2.0, round_robin_files=True,
         throttle_sleep_sec=0.01, throttle_total_rate_bytes_per_sec=0):
 

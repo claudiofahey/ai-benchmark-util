@@ -2,19 +2,13 @@
 set -ex
 
 HOSTS="\
--H dgx1-1:80 \
--H dgx1-2:80 \
--H dgx1-3:80 \
--H dgx1-4:80 \
--H dgx1-5:80 \
--H dgx1-6:80 \
--H dgx1-7:80 \
--H dgx1-8:80 \
--H dgx1-9:80 \
+-H dgx2-1:80 \
+-H dgx2-2:80 \
+-H dgx2-3:80 \
 "
 
 # Flush Isilon
-ssh -p 22 root@10.55.67.211 isi_for_array isi_flush
+ssh -p 22 root@172.28.10.151 isi_for_array isi_flush
 
 # Flush Linux
 mpirun \
@@ -25,11 +19,11 @@ ${HOSTS} \
 -mca plm_rsh_args "-p 2222" \
 ./drop_caches.sh
 
-subdir="tfrecords150/train-*"
+subdir="tfrecords-150x/train-*"
 
 mpirun \
 --allow-run-as-root \
--np 126 \
+-np 48 \
 ${HOSTS} \
 --map-by node \
 --bind-to socket \
@@ -44,20 +38,20 @@ ${HOSTS} \
 -x CUDA_VISIBLE_DEVICES="" \
 python -u \
 ./storage_benchmark_tensorflow.py \
- -i "/imagenet-scratch1/${subdir}" \
- -i "/imagenet-scratch2/${subdir}" \
- -i "/imagenet-scratch3/${subdir}" \
- -i "/imagenet-scratch4/${subdir}" \
- -i "/imagenet-scratch5/${subdir}" \
- -i "/imagenet-scratch6/${subdir}" \
- -i "/imagenet-scratch7/${subdir}" \
- -i "/imagenet-scratch8/${subdir}" \
- -i "/imagenet-scratch9/${subdir}" \
- -i "/imagenet-scratch10/${subdir}" \
- -i "/imagenet-scratch11/${subdir}" \
- -i "/imagenet-scratch12/${subdir}" \
- -i "/imagenet-scratch13/${subdir}" \
- -i "/imagenet-scratch14/${subdir}" \
- -i "/imagenet-scratch15/${subdir}" \
- -i "/imagenet-scratch16/${subdir}" \
+ -i "/mnt/isilon1/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon2/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon3/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon4/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon5/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon6/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon7/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon8/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon9/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon10/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon11/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon12/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon13/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon14/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon15/data/imagenet-scratch/${subdir}" \
+ -i "/mnt/isilon16/data/imagenet-scratch/${subdir}" \
 |& tee -a /imagenet-scratch/logs/storage_benchmark_tensorflow.log
