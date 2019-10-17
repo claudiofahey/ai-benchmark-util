@@ -1,4 +1,9 @@
 batch_size: 256
+flush: true
+host:
+  - dgx2-1
+  - dgx2-2
+  - dgx2-3
 input_file_specs:
   - "/mnt/isilon1/data/imagenet-scratch/tfrecords-150x/train-*"
   - "/mnt/isilon2/data/imagenet-scratch/tfrecords-150x/train-*"
@@ -16,7 +21,11 @@ input_file_specs:
   - "/mnt/isilon14/data/imagenet-scratch/tfrecords-150x/train-*"
   - "/mnt/isilon15/data/imagenet-scratch/tfrecords-150x/train-*"
   - "/mnt/isilon16/data/imagenet-scratch/tfrecords-150x/train-*"
+install: true
+isilon_host: 172.28.10.151
 metrics_directory: /imagenet-scratch/logs
+np: 48
+npernode: 80
 num_threads: 0
 parallel_interleave_cycle_length: 0
 round_robin_files: true
