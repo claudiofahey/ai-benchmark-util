@@ -25,8 +25,9 @@ def main():
 
     rank = int(os.environ['OMPI_COMM_WORLD_RANK'])
 
-    i = (rank % len(args.data_dir))
-    cmd += ['--data_dir=%s' % args.data_dir[i]]
+    if args.data_dir:
+        i = (rank % len(args.data_dir))
+        cmd += ['--data_dir=%s' % args.data_dir[i]]
 
     print('round_robin_mpi.py: ' + ' '.join(cmd))
     subprocess.run(cmd, check=True)

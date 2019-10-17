@@ -113,7 +113,6 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         ]
 
     cmd = mpirun_cmd + [
-        # '/bin/echo',
         'python',
         '-u',
         '/tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py',

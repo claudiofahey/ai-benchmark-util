@@ -27,6 +27,10 @@ RUN mkdir -p /var/run/sshd && \
     chmod 700 /root/.ssh && \
     chmod 600 /root/.ssh/*
 
+# Install Python libraries.
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --requirement /tmp/requirements.txt
+
 WORKDIR /scripts
 
 EXPOSE 2222
