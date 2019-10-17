@@ -1,0 +1,31 @@
+extraScrapeConfigs: |
+  - job_name: dgx
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - 172.28.10.180:9100	# dgx2-1
+          - 172.28.10.180:9445  # dgx2-1
+          - 172.28.10.181:9100  # dgx2-2
+          - 172.28.10.181:9445  # dgx2-2
+          - 172.28.10.182:9100  # dgx2-3
+          - 172.28.10.182:9445  # dgx2-3
+        labels:
+          group: dgx
+
+  - job_name: snmp
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+        - 172.28.10.135  # switch-1
+        - 172.28.10.136  # switch-2
+    metrics_path: /snmp
+    params:
+      module:
+        - if_mib
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: prometheus-snmp-exporter:9116  # The SNMP exporter's Service name and port.

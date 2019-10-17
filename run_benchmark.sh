@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 python -u ./run_benchmark.py \
---isilon_host 127.0.0.1 \
+--isilon_host 172.28.10.151 \
 --noflush \
---model resnet50 \
+--model vgg16 \
 -np 48 \
 -npernode 16 \
 -H dgx2-1 \
