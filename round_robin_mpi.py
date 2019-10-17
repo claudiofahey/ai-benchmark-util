@@ -18,14 +18,15 @@ import os
 
 def main():
     parser = argparse.ArgumentParser(description='')
+    parser.add_argument('--data_dir', action='append')
     args, unknown_args = parser.parse_known_args()
 
     cmd = unknown_args
 
     rank = int(os.environ['OMPI_COMM_WORLD_RANK'])
 
-    i = 1 + (rank % 1)
-    cmd += ['--data_dir=/mnt/isilon%d/data/imagenet-scratch/tfrecords' % i]
+    i = (rank % len(args.data_dir))
+    cmd += ['--data_dir=%s' % args.data_dir[i]]
 
     print('round_robin_mpi.py: ' + ' '.join(cmd))
     subprocess.run(cmd, check=True)

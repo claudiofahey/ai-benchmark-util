@@ -399,14 +399,14 @@ def main():
     parser.add('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add('--input_file_specs', '-i', action='append', help='Input file spec', required=True)
     parser.add('--install', action='store_true')
-    parser.add('--isilon_host', action='store',
+    parser.add('--isilon_host',
                help='IP address or hostname of an Isilon node. You must enable password-less SSH.')
-    parser.add('--isilon_user', action='store', default='root',
+    parser.add('--isilon_user', default='root',
                help='SSH user used to connect to Isilon.')
     parser.add('--metrics_directory', default='/tmp')
     parser.add('--noop', action='store_true')
-    parser.add('--np', type=int, default=1)
-    parser.add('--npernode', action='store', type=int, default=80, help='On each node, launch this many processes.')
+    parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
+    parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
     parser.add('--num_threads', type=int, default=0, help='Number of threads')
     parser.add('--parallel_interleave_cycle_length', type=int, default=0)
     parser.add('--prefetch_records', type=int, nargs='?')

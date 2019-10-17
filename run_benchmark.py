@@ -11,16 +11,20 @@ It flushes caches and builds the command line for tf_cnn_benchmarks.py.
 It supports training and inference modes.
 """
 
-import argparse
+import configargparse
 import subprocess
 import datetime
 import os
 import time
 
+
 def run_tf_cnn_benchmarks(args, unknown_args):
     print('run_tf_cnn_benchmarks: BEGIN')
     print(datetime.datetime.utcnow())
     print('args=%s' % str(args))
+
+    args.data_dir += [args.data_dir_template % (i+1) for i in range(args.data_dir_template_count)]
+    print('data_dir=%s' % str(args.data_dir))
 
     mpi_hosts = ','.join(['%s:%d' % (h, args.npernode) for h in args.host])
     num_hosts = len(args.host)
@@ -81,7 +85,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
     if args.mpi:
         mpirun_cmd = [
             'mpirun',
-            '--n', str(args.n),
+            '--n', str(args.np),
             '-allow-run-as-root',
             '--host', mpi_hosts,
             '--report-bindings',
@@ -102,38 +106,39 @@ def run_tf_cnn_benchmarks(args, unknown_args):
             '-x', 'NCCL_SOCKET_IFNAME=^docker0,lo',          # Do not let NCCL use docker0 interface. See https://github.com/uber/horovod/blob/master/docs/running.md#hangs-due-to-non-routed-network-interfaces.
             './round_robin_mpi.py',
         ]
+
         horovod_parameters = [
             '--variable_update=horovod',
             '--horovod_device=gpu',
         ]
 
     cmd = mpirun_cmd + [
+        # '/bin/echo',
         'python',
         '-u',
         '/tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py',
         '--model=%s' % args.model,
-        '--batch_size=192',
-        '--batch_group_size=10',
-        # '--num_epochs=4',
-        '--num_batches=5000',
+        '--batch_size=%d' % args.batch_size,
+        '--batch_group_size=%d' % args.batch_group_size,
+        '--num_batches=%d' % args.num_batches,
         '--nodistortions',
         '--num_gpus=1',
         '--device=gpu',
         '--force_gpu_compatible=True',
         '--data_format=NCHW',
-        '--use_fp16=True',  '--use_tf_layers=False',  # For Tensor Cores, fp16
-        # '--use_fp16=False', '--use_tf_layers=True',   # For CUDA Cores, fp32
+        '--use_fp16=%s' % str(args.fp16),
+        '--use_tf_layers=%s' % str(args.fp16),
         '--data_name=imagenet',
         '--use_datasets=True',
-        '--data_dir=/imagenet-scratch1/tfrecords',  # Note that this is overridden by round_robin_mpi.py
-        '--num_intra_threads=1',
-        '--num_inter_threads=40',
-        '--datasets_prefetch_buffer_size=20',
-        '--datasets_num_private_threads=2',
+        '--num_intra_threads=%d' % args.num_intra_threads,
+        '--num_inter_threads=%d' % args.num_inter_threads,
+        '--datasets_prefetch_buffer_size=%d' % args.datasets_prefetch_buffer_size,
+        '--datasets_num_private_threads=%d' % args.datasets_num_private_threads,
         '--train_dir=%s' % train_dir,
         '--sync_on_finish=True',
         ] + eval_cmd + horovod_parameters
 
+    cmd += ['--data_dir=%s' % data_dir for data_dir in args.data_dir]
     cmd += unknown_args
 
     print(' '.join(cmd))
@@ -143,28 +148,40 @@ def run_tf_cnn_benchmarks(args, unknown_args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Execute TensorFlow CNN benchmarks')
-    parser.add_argument('-np', '--n', action='store', type=int, default=1,
-                        help='Run this many copies of the program on the given nodes.')
-    parser.add_argument('-npernode', '--npernode', action='store', type=int, default=1,
-                        help='On each node, launch this many processes.')
-    parser.add_argument('-H', '--host', action='append', required=True,
-                        help='List of hosts on which to invoke processes.')
-    parser.add_argument('--noflush', action='store_false', dest='flush',
-                        help='Do not flush caches.')
-    parser.add_argument('--train_dir', action='store', default='/imagenet-scratch/train_dir')
-    parser.add_argument('--nompi', action='store_false', dest='mpi',
-                        help='Do not use MPI.')
-    parser.add_argument('--eval', action='store_true',
-                        help='Perform inference instead of training.')
-    parser.add_argument('--forward_only', action='store_true',
-                        help='Perform inference instead of training.')
-    parser.add_argument('--model', action='store', default='resnet50')
-    parser.add_argument('--run_id', action='store')
-    parser.add_argument('--isilon_host', action='store',
-                        help='IP address or hostname of an Isilon node. You must enable password-less SSH.')
-    parser.add_argument('--isilon_user', action='store', default='root',
-                        help='SSH user used to connect to Isilon.')
+    parser = configargparse.ArgParser(
+        description='Execute TensorFlow CNN benchmarks',
+        config_file_parser_class=configargparse.YAMLConfigFileParser,
+        default_config_files=['run_benchmark.yaml'],
+    )
+    parser.add('--batch_group_size', type=int, default=10)
+    parser.add('--batch_size', type=int, default=256, help='Number of records per batch')
+    parser.add('--config', '-c', required=False, is_config_file=True, help='config file path')
+    parser.add('--data_dir', action='append', default=[])
+    parser.add('--data_dir_template')
+    parser.add('--data_dir_template_count', type=int, default=0)
+    parser.add('--datasets_prefetch_buffer_size', type=int, default=20)
+    parser.add('--datasets_num_private_threads', type=int, default=2)
+    parser.add('--eval', action='store_true',
+               help='Perform inference instead of training.')
+    parser.add('--flush', action='store_true', help='Flush caches')
+    parser.add('--fp16', action='store_true', help='Use FP16, otherwise use FP32')
+    parser.add('--forward_only', action='store_true',
+               help='Perform inference instead of training.')
+    parser.add('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
+    parser.add('--isilon_host',
+               help='IP address or hostname of an Isilon node. You must enable password-less SSH.')
+    parser.add('--isilon_user', default='root',
+               help='SSH user used to connect to Isilon.')
+    parser.add('--model', default='resnet50')
+    parser.add('--nompi', action='store_false', dest='mpi',
+               help='Do not use MPI.')
+    parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
+    parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
+    parser.add('--num_batches', type=int, default=500)
+    parser.add('--num_intra_threads', type=int, default=1)
+    parser.add('--num_inter_threads', type=int, default=40)
+    parser.add('--run_id')
+    parser.add('--train_dir', default='/imagenet-scratch/train_dir')
     args, unknown_args = parser.parse_known_args()
     run_tf_cnn_benchmarks(args, unknown_args)
 
