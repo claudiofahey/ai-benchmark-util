@@ -1,7 +1,7 @@
 
-# Build with: docker build -t claudiofahey/tensorflow:19.03-py3-custom .
+# Build with: docker build -t claudiofahey/tensorflow:19.09-py3-custom .
 
-FROM nvcr.io/nvidia/tensorflow:19.03-py3
+FROM nvcr.io/nvidia/tensorflow:19.09-py3
 
 MAINTAINER Claudio Fahey <Claudio.Fahey@dell.com>
 
@@ -18,7 +18,7 @@ RUN mkdir -p /var/run/sshd && \
     mkdir -p /root/.ssh && \
     echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
     echo "UserKnownHostsFile /dev/null" >> /etc/ssh/ssh_config && \
-    sed -i 's/^Port 22/Port 2222/' /etc/ssh/sshd_config && \
+    sed -i 's/^#*Port 22/Port 2222/' /etc/ssh/sshd_config && \
     echo "HOST *" >> /root/.ssh/config && \
     echo "PORT 2222" >> /root/.ssh/config && \
     mkdir -p /root/.ssh && \
