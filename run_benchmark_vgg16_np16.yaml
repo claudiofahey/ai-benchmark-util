@@ -1,0 +1,5 @@
+batch_size: 192
+host:
+  - dgx2-1
+model: vgg16
+np: 16

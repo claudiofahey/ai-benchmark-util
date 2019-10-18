@@ -1,0 +1,4 @@
+host:
+  - dgx2-1
+model: resnet50
+np: 16

@@ -1,4 +1,4 @@
-batch_size: 192
+batch_size: 256
 batch_group_size: 10
 data_dir_template: /mnt/isilon%d/data/imagenet-scratch/tfrecords-150x
 data_dir_template_count: 16
@@ -11,9 +11,11 @@ host:
   - dgx2-2
   - dgx2-3
 isilon_host: 172.28.10.151
-model: vgg16
+model: resnet50
+noop: false
 np: 48
 npernode: 16
-num_batches: 500
+num_batches: 1000
 num_intra_threads: 1
 num_inter_threads: 40
+repeat: 1

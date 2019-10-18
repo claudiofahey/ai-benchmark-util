@@ -23,8 +23,8 @@ def run_tf_cnn_benchmarks(args, unknown_args):
     print(datetime.datetime.utcnow())
     print('args=%s' % str(args))
 
-    args.data_dir += [args.data_dir_template % (i+1) for i in range(args.data_dir_template_count)]
-    print('data_dir=%s' % str(args.data_dir))
+    data_dir = args.data_dir + [args.data_dir_template % (i+1) for i in range(args.data_dir_template_count)]
+    print('data_dir=%s' % str(data_dir))
 
     mpi_hosts = ','.join(['%s:%d' % (h, args.npernode) for h in args.host])
     num_hosts = len(args.host)
@@ -112,6 +112,9 @@ def run_tf_cnn_benchmarks(args, unknown_args):
             '--horovod_device=gpu',
         ]
 
+    if args.noop:
+        mpirun_cmd += ['/bin/echo']
+
     cmd = mpirun_cmd + [
         'python',
         '-u',
@@ -137,11 +140,12 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--sync_on_finish=True',
         ] + eval_cmd + horovod_parameters
 
-    cmd += ['--data_dir=%s' % data_dir for data_dir in args.data_dir]
+    cmd += ['--data_dir=%s' % d for d in data_dir]
     cmd += unknown_args
 
     print(' '.join(cmd))
     subprocess.run(cmd, check=True)
+    print('args=%s' % str(args))
     print(datetime.datetime.utcnow())
     print('run_tf_cnn_benchmarks: END')
 
@@ -174,15 +178,19 @@ def main():
     parser.add('--model', default='resnet50')
     parser.add('--nompi', action='store_false', dest='mpi',
                help='Do not use MPI.')
+    parser.add('--noop', action='store_true')
     parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
     parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
     parser.add('--num_batches', type=int, default=500)
     parser.add('--num_intra_threads', type=int, default=1)
     parser.add('--num_inter_threads', type=int, default=40)
+    parser.add('--repeat', type=int, default=1)
     parser.add('--run_id')
     parser.add('--train_dir', default='/imagenet-scratch/train_dir')
     args, unknown_args = parser.parse_known_args()
-    run_tf_cnn_benchmarks(args, unknown_args)
+
+    for i in range(args.repeat):
+        run_tf_cnn_benchmarks(args, unknown_args)
 
 
 if __name__ == '__main__':

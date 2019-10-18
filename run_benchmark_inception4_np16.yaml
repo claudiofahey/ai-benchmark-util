@@ -1,0 +1,4 @@
+host:
+  - dgx2-1
+model: inception4
+np: 16
