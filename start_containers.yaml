@@ -1,0 +1,5 @@
+docker_image: claudiofahey/tensorflow:19.09-py3-custom
+host:
+  - dgx2-1
+  - dgx2-2
+  - dgx2-3

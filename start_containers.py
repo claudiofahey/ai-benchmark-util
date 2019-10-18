@@ -10,7 +10,7 @@ This script starts the TensorFlow Docker container on multiple hosts.
 """
 
 
-import argparse
+import configargparse
 import subprocess
 from multiprocessing import Pool
 import functools
@@ -70,9 +70,12 @@ def start_containers(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Start Docker containers for TensorFlow benchmarking')
-    parser.add_argument('-H', '--host', action='append', required=True,
-                        help='List of hosts on which to invoke processes.')
+    parser = configargparse.ArgParser(
+        description='Start Docker containers for TensorFlow benchmarking',
+        config_file_parser_class=configargparse.YAMLConfigFileParser,
+        default_config_files=['start_containers.yaml'],
+    )
+    parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add_argument('--scripts_dir', action='store',
                         default='/mnt/isilon/data/tf-bench-util',
                         help='Fully qualified path to the scripts directory.')
