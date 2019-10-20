@@ -18,6 +18,17 @@ import os
 import time
 
 
+def parse_bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise configargparse.ArgumentTypeError('Boolean value expected.')
+
+
 def run_tf_cnn_benchmarks(args, unknown_args):
     print('run_tf_cnn_benchmarks: BEGIN')
     print(datetime.datetime.utcnow())
@@ -164,11 +175,11 @@ def main():
     parser.add('--data_dir_template_count', type=int, default=0)
     parser.add('--datasets_prefetch_buffer_size', type=int, default=20)
     parser.add('--datasets_num_private_threads', type=int, default=2)
-    parser.add('--eval', action='store_true',
+    parser.add('--eval', type=parse_bool, default=False,
                help='Perform inference instead of training.')
-    parser.add('--flush', action='store_true', help='Flush caches')
-    parser.add('--fp16', action='store_true', help='Use FP16, otherwise use FP32')
-    parser.add('--forward_only', action='store_true',
+    parser.add('--flush', type=parse_bool, default=False, help='Flush caches')
+    parser.add('--fp16', type=parse_bool, default=True,  help='Use FP16, otherwise use FP32')
+    parser.add('--forward_only', type=parse_bool, default=False,
                help='Perform inference instead of training.')
     parser.add('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add('--isilon_host',
@@ -176,9 +187,8 @@ def main():
     parser.add('--isilon_user', default='root',
                help='SSH user used to connect to Isilon.')
     parser.add('--model', default='resnet50')
-    parser.add('--nompi', action='store_false', dest='mpi',
-               help='Do not use MPI.')
-    parser.add('--noop', action='store_true')
+    parser.add('--mpi', type=parse_bool, default=True, help='Use MPI.')
+    parser.add('--noop', type=parse_bool, default=False)
     parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
     parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
     parser.add('--num_batches', type=int, default=500)

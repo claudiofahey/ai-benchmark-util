@@ -32,6 +32,17 @@ from tensorflow.contrib.data.python.ops import threadpool
 from token_bucket import TokenBucket
 
 
+def parse_bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise configargparse.ArgumentTypeError('Boolean value expected.')
+
+
 def process_record(example_serialized):
     # example_serialized = tf.Print(example_serialized, [example_serialized], 'example_serialized: ', first_n=10, summarize=10)
     # print('example_serialized=%s' % str(example_serialized))
@@ -395,30 +406,30 @@ def main():
     parser.add('--batch_size', type=int, default=256, help='Number of records per batch')
     parser.add('--config', '-c', required=False, is_config_file=True, help='config file path')
     parser.add('--dataset_buffer_size', type=int, nargs='?')
-    parser.add('--flush', action='store_true', help='Flush caches')
+    parser.add('--flush', type=parse_bool, default=False, help='Flush caches')
     parser.add('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add('--input_file_specs', '-i', action='append', help='Input file spec', required=True)
-    parser.add('--install', action='store_true')
+    parser.add('--install', type=parse_bool, default=False)
     parser.add('--isilon_host',
                help='IP address or hostname of an Isilon node. You must enable password-less SSH.')
     parser.add('--isilon_user', default='root',
                help='SSH user used to connect to Isilon.')
     parser.add('--metrics_directory', default='/tmp')
-    parser.add('--noop', action='store_true')
+    parser.add('--noop', type=parse_bool, default=False)
     parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
     parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
     parser.add('--num_threads', type=int, default=0, help='Number of threads')
     parser.add('--parallel_interleave_cycle_length', type=int, default=0)
     parser.add('--prefetch_records', type=int, nargs='?')
     parser.add('--report_period_sec', type=float, default=2.0, help='Report statistics with this period in seconds')
-    parser.add('--round_robin_files', action='store_true')
+    parser.add('--round_robin_files', type=parse_bool, default=False)
     parser.add('--run_sec', type=float, default=60*60*4, help='Run time in seconds')
-    parser.add('--sync', action='store_true', help='Synchronize workers after each batch')
+    parser.add('--sync', type=parse_bool, default=False, help='Synchronize workers after each batch')
     parser.add('--throttle_sleep_sec', type=float, default=0.01)
     parser.add('--throttle_total_rate_bytes_per_sec', type=float, default=0, help='If 0, unthrottled')
     parser.add('--warmup_sec', type=float, default=10.0, help='Warm-up time in seconds')
     parser.add('--warn_latency_sec', type=float, default=4.0, help='Warn if read latency exceeds this many seconds')
-    parser.add('--worker', action='store_true')
+    parser.add('--worker', type=parse_bool, default=False)
     args = parser.parse_args()
     print('storage_benchmark_tensorflow: Options: %s' % str(args))
 
