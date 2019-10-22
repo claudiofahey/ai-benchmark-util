@@ -1,0 +1,9 @@
+batch_size: 192
+data_dir_template_count: 1
+host:
+  - dgx2-1
+  - dgx2-2
+flush: false
+model: vgg16
+np: 32
+num_batches: 100000

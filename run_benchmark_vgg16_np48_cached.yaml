@@ -1,0 +1,5 @@
+batch_size: 192
+data_dir_template_count: 1
+flush: false
+model: vgg16
+num_batches: 100000
