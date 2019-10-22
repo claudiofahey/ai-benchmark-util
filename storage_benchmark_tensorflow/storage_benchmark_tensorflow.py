@@ -390,7 +390,7 @@ def driver(args):
         '-x', 'CUDA_VISIBLE_DEVICES=""',
     ]
     cmd += sys.argv
-    cmd += ['--worker']
+    cmd += ['--worker', 'true']
     print(' '.join(cmd))
     subprocess.run(cmd, check=True)
 
