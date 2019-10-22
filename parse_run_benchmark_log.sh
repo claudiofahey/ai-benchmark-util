@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-egrep "BEGIN|END|total images/sec:|args=" $* | less
+egrep -A1 "BEGIN|END|total images/sec:|args=" $* | less
