@@ -162,10 +162,15 @@ def run_tf_cnn_benchmarks(args, unknown_args):
 
 
 def main():
+    script_dir = os.path.dirname(os.path.realpath(__file__))
     parser = configargparse.ArgParser(
         description='Execute TensorFlow CNN benchmarks',
         config_file_parser_class=configargparse.YAMLConfigFileParser,
-        default_config_files=['run_benchmark.yaml'],
+        default_config_files=[
+            os.path.join(script_dir, 'run_benchmark_defaults.yaml'),
+            os.path.join(script_dir, 'run_benchmark_environment.yaml'),
+            './suite_defaults.yaml',
+        ],
     )
     parser.add('--batch_group_size', type=int, default=10)
     parser.add('--batch_size', type=int, default=256, help='Number of records per batch')
@@ -192,12 +197,21 @@ def main():
     parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
     parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
     parser.add('--num_batches', type=int, default=500)
+    parser.add('--num_hosts', type=int, default=0, help="If >0, use exactly this many hosts")
     parser.add('--num_intra_threads', type=int, default=1)
     parser.add('--num_inter_threads', type=int, default=40)
     parser.add('--repeat', type=int, default=1)
     parser.add('--run_id')
     parser.add('--train_dir', default='/imagenet-scratch/train_dir')
     args, unknown_args = parser.parse_known_args()
+
+    os.chdir(script_dir)
+
+    if args.num_hosts > 0:
+        if args.num_hosts < len(args.host):
+            args.host = args.host[0:args.num_hosts]
+        elif args.num_hosts > len(args.host):
+            raise Exception('Not enough hosts')
 
     for i in range(args.repeat):
         run_tf_cnn_benchmarks(args, unknown_args)

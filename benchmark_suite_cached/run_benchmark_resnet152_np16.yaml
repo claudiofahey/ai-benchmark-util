@@ -1,0 +1,3 @@
+model: resnet152
+np: 16
+num_hosts: 1
