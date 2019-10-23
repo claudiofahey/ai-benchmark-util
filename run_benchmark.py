@@ -195,7 +195,7 @@ def main():
     parser.add('--mpi', type=parse_bool, default=True, help='Use MPI.')
     parser.add('--noop', type=parse_bool, default=False)
     parser.add('--np', type=int, default=1, help='Run this many copies of the program on the given nodes.')
-    parser.add('--npernode', type=int, default=80, help='On each node, launch this many processes.')
+    parser.add('--npernode', type=int, default=16, help='On each node, launch this many processes.')
     parser.add('--num_batches', type=int, default=500)
     parser.add('--num_hosts', type=int, default=0, help="If >0, use exactly this many hosts")
     parser.add('--num_intra_threads', type=int, default=1)
