@@ -1,3 +1,0 @@
-model: inception3
-np: 32
-num_hosts: 2

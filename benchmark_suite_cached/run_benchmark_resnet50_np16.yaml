@@ -1,3 +1,0 @@
-model: resnet50
-np: 16
-num_hosts: 1

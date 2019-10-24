@@ -1,2 +1,0 @@
-data_dir_template: /mnt/isilon%d/data/imagenet-scratch/tfrecords-150x
-data_dir_template_count: 16

@@ -1,4 +1,0 @@
-batch_size: 192
-model: vgg16
-np: 32
-num_hosts: 2

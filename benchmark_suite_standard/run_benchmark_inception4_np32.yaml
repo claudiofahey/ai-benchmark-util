@@ -1,5 +1,0 @@
-host:
-  - dgx2-1
-  - dgx2-2
-model: inception4
-np: 32
