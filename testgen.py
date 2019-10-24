@@ -21,7 +21,7 @@ def add_test():
     else:
         raise Exception()
 
-    data_dir_template = '/mnt/isilon%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
+    data_dir_template = '/mnt/isilon%%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
     flush = not cached
 
     t = dict(
@@ -36,7 +36,7 @@ def add_test():
             dict(key='TENSORFLOW_VERSION',
                  command_template='docker exec tf /bin/bash -c "echo \\$TENSORFLOW_VERSION"'),
         ],
-        command=[
+        command_template=[
             'docker',
             'exec',
             'tf',
@@ -49,6 +49,7 @@ def add_test():
             '--datasets_num_private_threads', '%d' % datasets_num_private_threads,
             '--flush', '%d' % flush,
             '--fp16', '%d' % fp16,
+            '--isilon_host', '%(isilon_host)s',
             '--model', model,
             '--noop', '%d' % noop,
             '--np', '%d' % np,
@@ -69,6 +70,7 @@ def add_test():
         flush=flush,
         fp16=fp16,
         image_resize_factor=image_resize_factor,
+        isilon_flush=flush,
         model=model,
         np=np,
         npernode=npernode,
@@ -90,7 +92,7 @@ fp16 = True
 noop = False
 storage_type = 'isilon'
 
-for repeat in range(3):
+for repeat in range(0):
     for cached in [False, True]:
         for model in ['resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
             for batch_group_size in [10]:
@@ -100,10 +102,32 @@ for repeat in range(3):
                     batch_sizes = [256]
                 for batch_size in batch_sizes:
                     for data_dir_template_count in [1 if cached else 16]:
-                        for datasets_prefetch_buffer_size in [20]:
-                            for datasets_num_private_threads in [2]:
+                        for datasets_prefetch_buffer_size in [40]:
+                            for datasets_num_private_threads in [4]:
                                 for num_batches in [1000]:
                                     for num_hosts in [3, 2, 1]:
+                                        for npernode in [16]:
+                                            np = num_hosts * npernode
+                                            for num_intra_threads in [1]:
+                                                for num_inter_threads in [40]:
+                                                    add_test()
+
+for repeat in range(3):
+    for cached in [False]:
+        for model in ['vgg16']:
+            for batch_group_size in [10]:
+                if model == 'resnet50':
+                    batch_sizes = [256]
+                elif model == 'vgg16':
+                    batch_sizes = [192]
+                else:
+                    batch_sizes = [256]
+                for batch_size in batch_sizes:
+                    for data_dir_template_count in [1 if cached else 16]:
+                        for datasets_prefetch_buffer_size in [40]:
+                            for datasets_num_private_threads in [4]:
+                                for num_batches in [1000]:
+                                    for num_hosts in [2, 1]:
                                         for npernode in [16]:
                                             np = num_hosts * npernode
                                             for num_intra_threads in [1]:
