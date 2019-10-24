@@ -10,6 +10,20 @@ import sys
 
 
 def add_test():
+    num_copies = 1 if cached else num_copies_uncached
+
+    if num_copies == 1 and image_resize_factor == 1.0:
+        data_dir_suffix = ''
+    elif num_copies == 150 and image_resize_factor == 1.0:
+        data_dir_suffix = '-150x'
+    elif num_copies == 1 and image_resize_factor == 3.0:
+        data_dir_suffix = '1729'
+    else:
+        raise Exception()
+
+    data_dir_template = '/mnt/isilon%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
+    flush = not cached
+
     t = dict(
         test='simple',
         record_as_test='tensorflow_cnn_benchmark',
@@ -47,52 +61,54 @@ def add_test():
         batch_group_size=batch_group_size,
         batch_size=batch_size,
         cached=cached,
+        data_dir_suffix=data_dir_suffix,
         data_dir_template=data_dir_template,
         data_dir_template_count=data_dir_template_count,
         datasets_prefetch_buffer_size=datasets_prefetch_buffer_size,
         datasets_num_private_threads=datasets_num_private_threads,
         flush=flush,
         fp16=fp16,
+        image_resize_factor=image_resize_factor,
         model=model,
         np=np,
         npernode=npernode,
         num_batches=num_batches,
+        num_copies=num_copies,
         num_hosts=num_hosts,
         num_intra_threads=num_intra_threads,
         num_inter_threads=num_inter_threads,
+        storage_type=storage_type,
     )
     test_list.append(t)
 
 
 test_list = []
 
-cached = True
-if cached:
-    data_dir_suffix = 'tfrecords'
-else:
-    data_dir_suffix = 'tfrecords-150x'
-data_dir_template = '/mnt/isilon%d/data/imagenet-scratch/' + data_dir_suffix
-flush = not cached
+num_copies_uncached = 150
+image_resize_factor = 1.0
 fp16 = True
 noop = False
+storage_type = 'isilon'
 
-for model in ['resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
-    for batch_group_size in [10]:
-        if model == 'vgg16':
-            batch_sizes = [192]
-        else:
-            batch_sizes = [256]
-        for batch_size in batch_sizes:
-            for data_dir_template_count in [1 if cached else 16]:
-                for datasets_prefetch_buffer_size in [20]:
-                    for datasets_num_private_threads in [2]:
-                        for num_batches in [1000]:
-                            for num_hosts in [3, 2, 1]:
-                                for npernode in [16]:
-                                    np = num_hosts * npernode
-                                    for num_intra_threads in [1]:
-                                        for num_inter_threads in [40]:
-                                            add_test()
+for repeat in range(3):
+    for cached in [False, True]:
+        for model in ['resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
+            for batch_group_size in [10]:
+                if model == 'vgg16':
+                    batch_sizes = [192]
+                else:
+                    batch_sizes = [256]
+                for batch_size in batch_sizes:
+                    for data_dir_template_count in [1 if cached else 16]:
+                        for datasets_prefetch_buffer_size in [20]:
+                            for datasets_num_private_threads in [2]:
+                                for num_batches in [1000]:
+                                    for num_hosts in [3, 2, 1]:
+                                        for npernode in [16]:
+                                            np = num_hosts * npernode
+                                            for num_intra_threads in [1]:
+                                                for num_inter_threads in [40]:
+                                                    add_test()
 
 print(json.dumps(test_list, sort_keys=True, indent=4, ensure_ascii=False))
 print('Number of tests generated: %d' % len(test_list), file=sys.stderr)
