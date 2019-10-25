@@ -1,0 +1,8 @@
+host:
+  - dgx2-1
+  - dgx2-2
+  - dgx2-3
+isilon_ip:
+  - 10.200.10.151
+isilon_ip_count: 16
+skip_hosts: 1
