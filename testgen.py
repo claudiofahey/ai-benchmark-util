@@ -92,7 +92,7 @@ fp16 = True
 noop = False
 storage_type = 'isilon'
 
-for repeat in range(0):
+for repeat in range(3):
     for cached in [False, True]:
         for model in ['resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
             for batch_group_size in [10]:
@@ -112,9 +112,9 @@ for repeat in range(0):
                                                 for num_inter_threads in [40]:
                                                     add_test()
 
-for repeat in range(3):
+for repeat in range(0):
     for cached in [False]:
-        for model in ['vgg16']:
+        for model in ['resnet50']:
             for batch_group_size in [10]:
                 if model == 'resnet50':
                     batch_sizes = [256]
