@@ -1,0 +1,6 @@
+input_dir: /mnt/isilon1/data/genomics/from_nas/fq
+num_fq_pairs: 1
+output_dir: /mnt/isilon1/data/genomics/output
+#reference_files_dir: /raid/genomics/reference_files
+reference_files_dir: /mnt/isilon1/data/genomics/reference_files
+temp_dir: /raid/genomics/tmp
