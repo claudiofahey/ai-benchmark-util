@@ -27,7 +27,7 @@ def add_test():
     t = dict(
         test='simple',
         record_as_test='tensorflow_cnn_benchmark',
-        max_test_attempts=1,
+        max_test_attempts=2,
         pre_commands=[
             dict(key='tensorflow_benchmark_git_hash',
                  command_template='cd ../tensorflow-benchmarks && git rev-parse --short HEAD'),
@@ -92,6 +92,7 @@ fp16 = True
 noop = False
 storage_type = 'isilon'
 
+# Full test suite
 for repeat in range(3):
     for cached in [False, True]:
         for model in ['resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
@@ -112,27 +113,6 @@ for repeat in range(3):
                                                 for num_inter_threads in [40]:
                                                     add_test()
 
-for repeat in range(0):
-    for cached in [False]:
-        for model in ['resnet50']:
-            for batch_group_size in [10]:
-                if model == 'resnet50':
-                    batch_sizes = [256]
-                elif model == 'vgg16':
-                    batch_sizes = [192]
-                else:
-                    batch_sizes = [256]
-                for batch_size in batch_sizes:
-                    for data_dir_template_count in [1 if cached else 16]:
-                        for datasets_prefetch_buffer_size in [40]:
-                            for datasets_num_private_threads in [4]:
-                                for num_batches in [1000]:
-                                    for num_hosts in [2, 1]:
-                                        for npernode in [16]:
-                                            np = num_hosts * npernode
-                                            for num_intra_threads in [1]:
-                                                for num_inter_threads in [40]:
-                                                    add_test()
 
 print(json.dumps(test_list, sort_keys=True, indent=4, ensure_ascii=False))
 print('Number of tests generated: %d' % len(test_list), file=sys.stderr)
