@@ -5,7 +5,7 @@
     - cloudalchemy.node-exporter
 
 - name: NVIDIA GPU Exporter
-  hosts: ["all"]
+  hosts: ["dgx2"]
   tags: ["nvidia"]
   tasks:
     - shell: |

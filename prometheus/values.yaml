@@ -12,6 +12,14 @@ extraScrapeConfigs: |
         labels:
           group: dgx
 
+  - job_name: mgmt
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - 172.28.10.183:9100	# nvidia-mgmt
+        labels:
+          group: mgmt
+
   - job_name: snmp
     scrape_interval: 15s
     static_configs:
