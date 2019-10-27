@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 set -ex
-cmd="sbatch --gres gpu:4 ./parabricks_germline_pipeline_slurm.py --sample_id"
 scancel -u dgxuser
-for i in {1..13}; do
-    ${cmd} sample${i}
+for i in {1..1}; do
+    sample_id="sample${i}"#
+    sample_id="LP6005441-DNA_A10"
+    sbatch \
+    --gres gpu:4 \
+    --job-name "${sample_id}-job" \
+    --output "${sample_id}.out" \
+    parabricks_germline_pipeline_slurm.py \
+    --sample_id "${sample_id}"
 done
-sleep 5s
+sleep 1s
 squeue
-sleep 5s
 tail -f *.out

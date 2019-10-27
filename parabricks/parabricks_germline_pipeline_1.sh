@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Sample bash script to run a single sample.
+# This is not used by Slurm.
+
 set -ex
 
 GENOME=NA12878

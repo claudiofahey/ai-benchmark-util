@@ -1,6 +1,11 @@
+deepvariant: true
+#fq2bam: true
+germline: true
 input_dir: /mnt/isilon1/data/genomics/from_nas/fq
-num_fq_pairs: 1
+log_level: 20
+#max_num_fq_pairs: 2
 output_dir: /mnt/isilon1/data/genomics/output
-#reference_files_dir: /raid/genomics/reference_files
-reference_files_dir: /mnt/isilon1/data/genomics/reference_files
+reference_files_dir: /raid/genomics/reference_files
+#reference_files_dir: /mnt/isilon1/data/genomics/reference_files
+summary_file: "/mnt/isilon/data/genomics/summary/%(sample_id)s_%(timestamp)s_%(record_uuid)s.json.bz2"
 temp_dir: /raid/genomics/tmp
