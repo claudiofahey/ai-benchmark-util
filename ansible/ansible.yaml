@@ -1,4 +1,0 @@
-- name: Prometheus Node Exporter
-  tags: ["node-exporter"]
-  roles:
-    - cloudalchemy.node-exporter
