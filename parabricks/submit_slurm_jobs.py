@@ -68,9 +68,9 @@ def submit_slurm_jobs(args):
         print(' '.join(cmd))
         subprocess.run(cmd, check=True)
 
-        for host in args.host:
-            cmd = 'docker stop \\$(docker ps -a -q --filter ancestor=parabricks/release:v2.3.2 --format="{{.ID}}")'
-            ssh('root', host, cmd, raise_on_error=False)
+        # for host in args.host:
+        #     cmd = 'docker stop \\$(docker ps -a -q --filter ancestor=parabricks/release:v2.3.2 --format="{{.ID}}")'
+        #     ssh('root', host, cmd, raise_on_error=False)
 
     os.makedirs(log_dir, exist_ok=True)
 
@@ -82,9 +82,12 @@ def submit_slurm_jobs(args):
             cmd = [
                 # 'echo',
                 'sbatch',
+                # '--accel-bind', 'gv',
                 '--gres', 'gpu:%d' % args.num_gpus,
                 '--job-name', sample_id,
                 '--output', os.path.join(log_dir, '%s.log' % sample_id),
+                '--cpus-per-task', '%d' % args.num_cpus,
+                # '--cpu-bind', 'verbose',
                 # '--nodelist', ','.join(args.host),
                 # '--verbose',
                 '--requeue',
@@ -120,6 +123,7 @@ def main():
                help='SSH user used to connect to Isilon.')
     parser.add('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add('--log_dir', help='Log directory', default='/tmp', required=True)
+    parser.add('--num_cpus', type=int, default=24)
     parser.add('--num_gpus', type=int, default=4)
     parser.add('--sample_id', action='append', default=[], required=False)
     parser.add('--sample_id_file', action='append', default=[], required=False)

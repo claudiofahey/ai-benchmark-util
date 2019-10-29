@@ -7,4 +7,6 @@ host:
 isilon_host: 172.28.10.151
 log_dir: /mnt/isilon/data/genomics/logs
 log_level: 10
-num_gpus: 4
+# Each DGX-2 has 96 CPUs and 16 GPUs
+num_cpus: 48
+num_gpus: 8
