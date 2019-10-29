@@ -8,19 +8,15 @@
 """
 """
 
-import configargparse
-import datetime
 import logging
 import os
-import shutil
-import socket
 import subprocess
 import sys
 import time
 import uuid
-from p3_test_driver.system_command import system_command, ssh, time_duration_to_seconds
-from p3_test_driver.json_util import append_to_json_file
-from p3_test_driver.p3_util import mkdir_for_file
+
+import configargparse
+from p3_test_driver.system_command import system_command, ssh
 
 
 def parse_bool(v):
@@ -50,13 +46,6 @@ def flush_caches(args):
     if args.flush:
         for host in args.host:
             ssh('root', host, '/mnt/isilon/data/tf-bench-util/drop_caches.sh')
-        # cmd = [
-        #     'srun',
-        #     '--nodelist', ','.join(args.host),
-        #     '../drop_caches.sh',
-        # ]
-        # print(' '.join(cmd))
-        # subprocess.run(cmd, check=True)
 
 
 def submit_slurm_jobs(args):
@@ -79,6 +68,10 @@ def submit_slurm_jobs(args):
         print(' '.join(cmd))
         subprocess.run(cmd, check=True)
 
+        for host in args.host:
+            cmd = 'docker stop \\$(docker ps -a -q --filter ancestor=parabricks/release:v2.3.2 --format="{{.ID}}")'
+            ssh('root', host, cmd, raise_on_error=False)
+
     os.makedirs(log_dir, exist_ok=True)
 
     flush_caches(args)
@@ -92,8 +85,8 @@ def submit_slurm_jobs(args):
                 '--gres', 'gpu:%d' % args.num_gpus,
                 '--job-name', sample_id,
                 '--output', os.path.join(log_dir, '%s.log' % sample_id),
-                '--nodelist', ','.join(args.host),
-                '--verbose',
+                # '--nodelist', ','.join(args.host),
+                # '--verbose',
                 'parabricks_germline_pipeline_slurm.py',
                 '--sample_id', sample_id,
                 '--batch_uuid', args.batch_uuid,
