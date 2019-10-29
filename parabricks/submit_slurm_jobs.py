@@ -87,6 +87,7 @@ def submit_slurm_jobs(args):
                 '--output', os.path.join(log_dir, '%s.log' % sample_id),
                 # '--nodelist', ','.join(args.host),
                 # '--verbose',
+                '--requeue',
                 'parabricks_germline_pipeline_slurm.py',
                 '--sample_id', sample_id,
                 '--batch_uuid', args.batch_uuid,

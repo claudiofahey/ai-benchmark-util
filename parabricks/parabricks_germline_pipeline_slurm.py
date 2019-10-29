@@ -48,7 +48,7 @@ def record_result(result, result_filename):
     append_to_json_file([rec], result_filename, sort_keys=True, indent=True)
 
 
-def run_system_command(cmd, rec, shell=False, env=None):
+def run_system_command(cmd, rec, shell=False, env=None, noop=False, raise_on_error=True):
     t0 = datetime.datetime.utcnow()
     return_code, output, errors = system_command(
         cmd,
@@ -57,6 +57,7 @@ def run_system_command(cmd, rec, shell=False, env=None):
         raise_on_error=False,
         env=env,
         shell=shell,
+        noop=noop,
     )
     t1 = datetime.datetime.utcnow()
     td = t1 - t0
@@ -70,16 +71,16 @@ def run_system_command(cmd, rec, shell=False, env=None):
     rec['command_timed_out'] = (return_code == -1)
     rec['output'] = output
     rec['errors'] = errors
+    if not noop and raise_on_error and return_code != 0:
+        raise Exception('System command returned %d: %s' % (return_code, cmd))
 
 
 def process_sample(args):
+    logging.info('BEGIN')
     sample_id = args.sample_id
     hostname = socket.gethostname()
-
-    def print_prefix():
-        return '%s: %s' % (hostname, sample_id)
-
-    logging.info('%s: BEGIN' % print_prefix())
+    logging.info('sample_id=%s' % sample_id)
+    logging.info('hostname=%s' % hostname)
 
     t0 = datetime.datetime.utcnow()
 
@@ -90,97 +91,116 @@ def process_sample(args):
     rec['hostname'] = hostname
     rec['args'] = args.__dict__
 
-    input_dir = os.path.join(args.input_dir, sample_id)
-    output_dir = os.path.join(args.output_dir, sample_id)
-    temp_dir = os.path.join(args.temp_dir, sample_id)
-    rec['input_dir'] = input_dir
-    rec['output_dir'] = output_dir
-    rec['temp_dir'] = output_dir
+    exception = None
 
-    logging.debug('%s: input_dir=%s' % (print_prefix, input_dir))
-    logging.debug('%s: output_dir=%s' % (print_prefix, output_dir))
-    logging.debug('%s: temp_dir=%s' % (print_prefix, temp_dir))
+    try:
+        input_dir = os.path.join(args.input_dir, sample_id)
+        output_dir = os.path.join(args.output_dir, sample_id)
+        temp_dir = os.path.join(args.temp_dir, sample_id)
+        rec['input_dir'] = input_dir
+        rec['output_dir'] = output_dir
+        rec['temp_dir'] = output_dir
 
-    if os.path.exists(temp_dir): shutil.rmtree(temp_dir)
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(temp_dir, exist_ok=True)
+        logging.debug('input_dir=%s' % input_dir)
+        logging.debug('output_dir=%s' % output_dir)
+        logging.debug('temp_dir=%s' % temp_dir)
 
-    # Slurm sets CUDA_VISIBLE_DEVICES but pbrun requires NVIDIA_VISIBLE_DEVICES.
-    env = os.environ.copy()
-    cuda_visible_devices = os.environ.get('CUDA_VISIBLE_DEVICES', '0,1,2,3')
-    logging.info('%s: cuda_visible_devices=%s' % (print_prefix(), cuda_visible_devices))
-    num_gpus = len(cuda_visible_devices.split(','))
-    logging.info('%s: num_gpus=%d' % (print_prefix(), num_gpus))
-    env['NVIDIA_VISIBLE_DEVICES'] = cuda_visible_devices
-    rec['env'] = env
-    rec['cuda_visible_devices'] = cuda_visible_devices
-    rec['num_gpus'] = num_gpus
+        if not args.noop and os.path.exists(temp_dir): shutil.rmtree(temp_dir)
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(temp_dir, exist_ok=True)
 
-    fq_pairs = []
-    for i in range(args.max_num_fq_pairs):
-        pair = []
-        for j in range(1,3):
-            filename = os.path.join(input_dir, '%d_%d.fq.gz' % (i, j))
-            if os.path.isfile(filename):
-                pair += [filename]
-        if pair:
-            fq_pairs += [pair]
-    logging.debug('%s: fq_pairs=%s' % (print_prefix(), str(fq_pairs)))
-    rec['fq_pairs'] = fq_pairs
+        # Slurm sets CUDA_VISIBLE_DEVICES but pbrun requires NVIDIA_VISIBLE_DEVICES.
+        env = os.environ.copy()
+        cuda_visible_devices = os.environ.get('CUDA_VISIBLE_DEVICES', '0,1,2,3')
+        logging.info('cuda_visible_devices=%s' % cuda_visible_devices)
+        num_gpus = len(cuda_visible_devices.split(','))
+        logging.info('num_gpus=%d' % num_gpus)
+        env['NVIDIA_VISIBLE_DEVICES'] = cuda_visible_devices
+        rec['env'] = env
+        rec['cuda_visible_devices'] = cuda_visible_devices
+        rec['num_gpus'] = num_gpus
 
-    in_fq_cmd = []
-    for i, fq_pair in enumerate(fq_pairs):
-        header = '@RG\\tID:%d\\tLB:lib1\\tPL:bar\\tSM:%s\\tPU:%d' % (i, sample_id, i)
-        in_fq_cmd += ['--in-fq'] + fq_pair + [header]
+        fq_pairs = []
+        fq_file_sizes = []
+        for i in range(args.max_num_fq_pairs):
+            pair = []
+            for j in range(1,3):
+                filename = os.path.join(input_dir, '%d_%d.fq.gz' % (i, j))
+                if os.path.isfile(filename):
+                    pair += [filename]
+                    fq_file_sizes += [os.path.getsize(filename)]
+            if pair:
+                fq_pairs += [pair]
+        logging.debug('fq_pairs=%s' % str(fq_pairs))
+        rec['fq_pairs'] = fq_pairs
+        logging.info('fq_file_sizes=%s' % str(fq_file_sizes))
+        rec['fq_file_sizes'] = fq_file_sizes
 
-    logging.debug('%s: in_fq_cmd=%s' % (print_prefix, str(in_fq_cmd)))
+        in_fq_cmd = []
+        for i, fq_pair in enumerate(fq_pairs):
+            header = '@RG\\tID:%d\\tLB:lib1\\tPL:bar\\tSM:%s\\tPU:%d' % (i, sample_id, i)
+            in_fq_cmd += ['--in-fq'] + fq_pair + [header]
 
-    if args.fq2bam:
-        cmd = [
-            'pbrun',
-            'fq2bam',
-            '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
-            '--out-bam', os.path.join(output_dir, '%s.bam' % sample_id),
-            '--tmp-dir', temp_dir,
-            '--num-gpus', '%d' % num_gpus,
-        ]
-        cmd += in_fq_cmd
-        rec['fq2bam_result'] = {}
-        run_system_command(cmd, rec['fq2bam_result'], env=env)
+        logging.debug('in_fq_cmd=%s' % str(in_fq_cmd))
 
-    if args.germline:
-        cmd = [
-            'pbrun',
-            'germline',
-            '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
-            '--out-bam', os.path.join(output_dir, '%s.bam' % sample_id),
-            '--out-recal-file', os.path.join(output_dir, '%s.txt' % sample_id),
-            '--knownSites', os.path.join(args.reference_files_dir, 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz'),
-            '--knownSites', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.dbsnp138.vcf'),
-            '--out-variants', os.path.join(output_dir, '%s.g.vcf.gz' % sample_id),
-            '--gvcf',
-            '--tmp-dir', temp_dir,
-            '--num-gpus', '%d' % num_gpus,
-        ]
-        cmd += in_fq_cmd
-        rec['germline_result'] = {}
-        run_system_command(cmd, rec['germline_result'], env=env)
+        bam_file_name = os.path.join(output_dir, '%s.bam' % sample_id)
 
-    if args.deepvariant:
-        # deepvariant uses the bam output of fq2bam or germline.
-        cmd = [
-            'pbrun',
-            'deepvariant',
-            '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
-            '--in-bam', os.path.join(output_dir, '%s.bam' % sample_id),
-            '--out-variants', os.path.join(output_dir, '%s_dv.g.vcf.gz' % sample_id),
-            '--gvcf',
-            '--tmp-dir', temp_dir,
-            '--num-gpus', '%d' % num_gpus,
-        ]
-        # cmd += in_fq_cmd
-        rec['deepvariant_result'] = {}
-        run_system_command(cmd, rec['deepvariant_result'], env=env)
+        if args.fq2bam:
+            cmd = [
+                'pbrun',
+                'fq2bam',
+                '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
+                '--out-bam', bam_file_name,
+                '--tmp-dir', temp_dir,
+                '--num-gpus', '%d' % num_gpus,
+            ]
+            cmd += in_fq_cmd
+            rec['fq2bam_result'] = {}
+            run_system_command(cmd, rec['fq2bam_result'], env=env, noop=args.noop)
+
+        if args.germline:
+            gvcf_file_name = os.path.join(output_dir, '%s.g.vcf.gz' % sample_id)
+            cmd = [
+                'pbrun',
+                'germline',
+                '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
+                '--out-bam', bam_file_name,
+                '--out-recal-file', os.path.join(output_dir, '%s.txt' % sample_id),
+                '--knownSites', os.path.join(args.reference_files_dir, 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz'),
+                '--knownSites', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.dbsnp138.vcf'),
+                '--out-variants', gvcf_file_name,
+                '--gvcf',
+                '--tmp-dir', temp_dir,
+                '--num-gpus', '%d' % num_gpus,
+            ]
+            cmd += in_fq_cmd
+            rec['germline_result'] = {}
+            run_system_command(cmd, rec['germline_result'], env=env, noop=args.noop)
+            rec['haplotypecaller_gvcf_file_size_bytes'] = os.path.getsize(gvcf_file_name)
+
+        rec['bam_file_size_bytes'] = os.path.getsize(bam_file_name)
+        logging.debug('bam_file_size_bytes=%d' % rec['bam_file_size_bytes'])
+
+        if args.deepvariant:
+            # deepvariant uses the bam output of fq2bam or germline.
+            gvcf_file_name = os.path.join(output_dir, '%s_dv.g.vcf.gz' % sample_id)
+            cmd = [
+                'pbrun',
+                'deepvariant',
+                '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
+                '--in-bam', bam_file_name,
+                '--out-variants', gvcf_file_name,
+                '--gvcf',
+                '--tmp-dir', temp_dir,
+                '--num-gpus', '%d' % num_gpus,
+            ]
+            rec['deepvariant_result'] = {}
+            run_system_command(cmd, rec['deepvariant_result'], env=env, noop=args.noop)
+            rec['deepvariant_gvcf_file_size_bytes'] = os.path.getsize(gvcf_file_name)
+
+    except Exception as e:
+        exception = e
+        rec['error'] = True
 
     t1 = datetime.datetime.utcnow()
     td = t1 - t0
@@ -191,7 +211,8 @@ def process_sample(args):
     if args.summary_file:
         record_result(rec, args.summary_file)
 
-    logging.info('%s: END' % print_prefix())
+    logging.info('END')
+    if exception: raise exception
 
 
 def main():
@@ -208,6 +229,7 @@ def main():
     parser.add('--germline', type=parse_bool, default=False)
     parser.add('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add('--max_num_fq_pairs', default=55, type=int)
+    parser.add('--noop', type=parse_bool, default=False)
     parser.add('--output_dir', help='Output directory', required=True)
     parser.add('--reference_files_dir', required=True)
     parser.add('--summary_file', required=False)
