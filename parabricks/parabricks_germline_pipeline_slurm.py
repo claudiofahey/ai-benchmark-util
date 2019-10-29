@@ -84,6 +84,7 @@ def process_sample(args):
     t0 = datetime.datetime.utcnow()
 
     rec = {}
+    rec['batch_uuid'] = args.batch_uuid
     rec['record_uuid'] = str(uuid.uuid4())
     rec['sample_id'] = sample_id
     rec['hostname'] = hostname
@@ -200,6 +201,7 @@ def main():
     )
     parser.add('--config', '-c', default='parabricks_germline_pipeline.yaml',
                required=False, is_config_file=True, help='config file path')
+    parser.add('--batch_uuid', required=False)
     parser.add('--deepvariant', type=parse_bool, default=False)
     parser.add('--input_dir', help='Input directory', required=True)
     parser.add('--fq2bam', type=parse_bool, default=False)

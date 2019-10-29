@@ -2,7 +2,7 @@ deepvariant: true
 #fq2bam: true
 germline: true
 input_dir: /mnt/isilon1/data/genomics/from_nas/fq
-log_level: 20
+log_level: 10
 #max_num_fq_pairs: 2
 output_dir: /mnt/isilon1/data/genomics/output
 reference_files_dir: /raid/genomics/reference_files

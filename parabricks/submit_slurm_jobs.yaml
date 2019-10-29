@@ -1,0 +1,10 @@
+cancel_jobs: true
+flush: true
+host:
+  - dgx2-1
+  - dgx2-2
+  - dgx2-3
+isilon_host: 172.28.10.151
+log_dir: /mnt/isilon/data/genomics/logs
+log_level: 10
+num_gpus: 4
