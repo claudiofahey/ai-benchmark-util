@@ -3,7 +3,7 @@ slurm_cgroup_config:
   CgroupAutomount: yes
   CgroupReleaseAgentDir: "/etc/slurm/cgroup"
   ConstrainCores: yes
-  TaskAffinity: no
+  TaskAffinity: yes
   ConstrainRAMSpace: yes
   ConstrainSwapSpace: no
   ConstrainDevices: no
@@ -29,8 +29,7 @@ slurm_config:
   SelectTypeParameters: "CR_Core"
   ControlMachine: "nvidia-mgmt"
   SwitchType: "switch/none"
-  TaskPlugin: "task/affinity,task/cgroup"
-  TaskPluginParam: "Sched"
+  TaskPlugin: "task/cgroup"
 slurm_create_dirs: yes
 slurm_create_user: yes
 slurm_gres_config:

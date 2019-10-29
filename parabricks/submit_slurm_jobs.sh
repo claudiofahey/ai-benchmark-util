@@ -2,7 +2,7 @@
 # Reads sample IDs from sample_ids.txt and submits a Slurm job for each sample.
 set -ex
 
-NUM_GPUS=${NUM_GPUS:-4}
+NUM_GPUS=${NUM_GPUS:-8}
 LOG_DIR="/mnt/isilon/data/genomics/logs"
 
 scancel -u dgxuser
@@ -20,6 +20,7 @@ sbatch \
 --gres gpu:${NUM_GPUS} \
 --job-name "{}" \
 --output "${LOG_DIR}/{}.log" \
+--verbose \
 parabricks_germline_pipeline_slurm.py \
 --sample_id "{}"
 
