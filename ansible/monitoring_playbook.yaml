@@ -12,5 +12,6 @@
         docker rm --force nvidia_gpu_prometheus_exporter ; \
         nvidia-docker run -d \
         -p 9445:9445 \
+        --restart always \
         --name nvidia_gpu_prometheus_exporter \
         mindprince/nvidia_gpu_prometheus_exporter:0.1

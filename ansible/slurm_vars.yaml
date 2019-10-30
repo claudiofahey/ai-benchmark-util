@@ -23,7 +23,9 @@ slurm_config:
   JobAcctGatherType: "jobacct_gather/none"
   MpiDefault: "none"
   ProctrackType: "proctrack/cgroup"
-  ReturnToService: 1
+  RebootProgram: "/sbin/reboot"
+  ResumeTimeout: 300
+  ReturnToService: 2
   SchedulerType: "sched/backfill"
   SelectType: "select/cons_res"
   SelectTypeParameters: "CR_Core"

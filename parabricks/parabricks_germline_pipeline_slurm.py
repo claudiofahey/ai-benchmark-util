@@ -106,8 +106,24 @@ def process_sample(args):
         logging.debug('temp_dir=%s' % temp_dir)
 
         if not args.noop and os.path.exists(temp_dir): shutil.rmtree(temp_dir)
-        os.makedirs(output_dir, exist_ok=True)
         os.makedirs(temp_dir, exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Create copy of Parabricks installation just for this process.
+        # If installation directories are used by different processes concurrently, corruption
+        # in the Singularity image may occur.
+        cmd = ['tar', '-xzvf', args.parabricks_install_tgz_file, '-C', temp_dir]
+        system_command(
+            cmd,
+            print_command=True,
+            print_output=True,
+            raise_on_error=True,
+            shell=False,
+            noop=args.noop,
+        )
+        pbrun_file_name = os.path.join(temp_dir, 'parabricks', 'pbrun')
+        logging.debug('pbrun_file_name=%s' % pbrun_file_name)
+        assert os.path.exists(pbrun_file_name)
 
         # Slurm sets CUDA_VISIBLE_DEVICES but pbrun requires NVIDIA_VISIBLE_DEVICES.
         env = os.environ.copy()
@@ -149,7 +165,7 @@ def process_sample(args):
 
         if args.fq2bam:
             cmd = [
-                'pbrun',
+                pbrun_file_name,
                 'fq2bam',
                 '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
                 '--out-bam', bam_file_name,
@@ -162,7 +178,7 @@ def process_sample(args):
 
         if args.germline:
             cmd = [
-                'pbrun',
+                pbrun_file_name,
                 'germline',
                 '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
                 '--out-bam', bam_file_name,
@@ -184,7 +200,7 @@ def process_sample(args):
 
         if args.haplotypecaller:
             cmd = [
-                'pbrun',
+                pbrun_file_name,
                 'haplotypecaller',
                 '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
                 '--in-bam', bam_file_name,
@@ -201,7 +217,7 @@ def process_sample(args):
         if args.deepvariant:
             # deepvariant uses the bam output of fq2bam or germline.
             cmd = [
-                'pbrun',
+                pbrun_file_name,
                 'deepvariant',
                 '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
                 '--in-bam', bam_file_name,
@@ -213,6 +229,8 @@ def process_sample(args):
             rec['deepvariant_result'] = {}
             run_system_command(cmd, rec['deepvariant_result'], env=env, noop=args.noop)
             rec['deepvariant_gvcf_file_size_bytes'] = os.path.getsize(dv_gvcf_file_name)
+
+        if not args.noop and os.path.exists(temp_dir): shutil.rmtree(temp_dir)
 
     except Exception as e:
         exception = e
@@ -248,6 +266,7 @@ def main():
     parser.add('--max_num_fq_pairs', default=55, type=int)
     parser.add('--noop', type=parse_bool, default=False)
     parser.add('--output_dir', help='Output directory', required=True)
+    parser.add('--parabricks_install_tgz_file', default='parabricks_install.tar.gz')
     parser.add('--reference_files_dir', required=True)
     parser.add('--summary_file', required=False)
     parser.add('--sample_id', required=True)
