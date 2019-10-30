@@ -144,6 +144,8 @@ def process_sample(args):
         logging.debug('in_fq_cmd=%s' % str(in_fq_cmd))
 
         bam_file_name = os.path.join(output_dir, '%s.bam' % sample_id)
+        gvcf_file_name = os.path.join(output_dir, '%s.g.vcf' % sample_id)
+        dv_gvcf_file_name = os.path.join(output_dir, '%s_dv.g.vcf' % sample_id)
 
         if args.fq2bam:
             cmd = [
@@ -159,7 +161,6 @@ def process_sample(args):
             run_system_command(cmd, rec['fq2bam_result'], env=env, noop=args.noop)
 
         if args.germline:
-            gvcf_file_name = os.path.join(output_dir, '%s.g.vcf.gz' % sample_id)
             cmd = [
                 'pbrun',
                 'germline',
@@ -181,22 +182,37 @@ def process_sample(args):
         rec['bam_file_size_bytes'] = os.path.getsize(bam_file_name)
         logging.debug('bam_file_size_bytes=%d' % rec['bam_file_size_bytes'])
 
+        if args.haplotypecaller:
+            cmd = [
+                'pbrun',
+                'haplotypecaller',
+                '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
+                '--in-bam', bam_file_name,
+                '--in-recal-file', os.path.join(output_dir, '%s.txt' % sample_id),
+                '--out-variants', gvcf_file_name,
+                '--gvcf',
+                '--tmp-dir', temp_dir,
+                '--num-gpus', '%d' % num_gpus,
+            ]
+            rec['haplotypecaller_result'] = {}
+            run_system_command(cmd, rec['haplotypecaller_result'], env=env, noop=args.noop)
+            rec['haplotypecaller_gvcf_file_size_bytes'] = os.path.getsize(gvcf_file_name)
+
         if args.deepvariant:
             # deepvariant uses the bam output of fq2bam or germline.
-            gvcf_file_name = os.path.join(output_dir, '%s_dv.g.vcf.gz' % sample_id)
             cmd = [
                 'pbrun',
                 'deepvariant',
                 '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
                 '--in-bam', bam_file_name,
-                '--out-variants', gvcf_file_name,
+                '--out-variants', dv_gvcf_file_name,
                 '--gvcf',
                 '--tmp-dir', temp_dir,
                 '--num-gpus', '%d' % num_gpus,
             ]
             rec['deepvariant_result'] = {}
             run_system_command(cmd, rec['deepvariant_result'], env=env, noop=args.noop)
-            rec['deepvariant_gvcf_file_size_bytes'] = os.path.getsize(gvcf_file_name)
+            rec['deepvariant_gvcf_file_size_bytes'] = os.path.getsize(dv_gvcf_file_name)
 
     except Exception as e:
         exception = e
@@ -227,6 +243,7 @@ def main():
     parser.add('--input_dir', help='Input directory', required=True)
     parser.add('--fq2bam', type=parse_bool, default=False)
     parser.add('--germline', type=parse_bool, default=False)
+    parser.add('--haplotypecaller', type=parse_bool, default=False)
     parser.add('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add('--max_num_fq_pairs', default=55, type=int)
     parser.add('--noop', type=parse_bool, default=False)

@@ -76,20 +76,18 @@ def submit_slurm_jobs(args):
 
     flush_caches(args)
 
+    log_files = []
     if True:
         for sample_rec in sample_records:
             sample_id = sample_rec[0]
+            log_file = os.path.join(log_dir, '%s.log' % sample_id)
+            log_files += [log_file]
             cmd = [
-                # 'echo',
                 'sbatch',
-                # '--accel-bind', 'gv',
                 '--gres', 'gpu:%d' % args.num_gpus,
                 '--job-name', sample_id,
-                '--output', os.path.join(log_dir, '%s.log' % sample_id),
+                '--output', log_file,
                 '--cpus-per-task', '%d' % args.num_cpus,
-                # '--cpu-bind', 'verbose',
-                # '--nodelist', ','.join(args.host),
-                # '--verbose',
                 '--requeue',
                 'parabricks_germline_pipeline_slurm.py',
                 '--sample_id', sample_id,
@@ -104,6 +102,7 @@ def submit_slurm_jobs(args):
             )
 
     logging.info('Jobs started. Logging to: %s' % log_dir)
+    subprocess.run(['tail', '-n', '1000', '-F'] + log_files)
 
 
 def main():
