@@ -92,11 +92,13 @@ def submit_slurm_jobs(args):
                 '--job-name', sample_id,
                 '--output', log_file,
                 '--cpus-per-task', '%d' % args.num_cpus,
-                '--mem-per-cpu', '%d' % args.mem_per_cpu,
+                # '--mem-per-cpu', '%d' % args.mem_per_cpu,
                 '--requeue',
                 'parabricks_germline_pipeline_slurm.py',
                 '--sample_id', sample_id,
                 '--batch_uuid', args.batch_uuid,
+                '--num_cpus', '%d' % args.num_cpus,
+                # '--mem_per_cpu', '%d' % args.mem_per_cpu,
             ]
             return_code, output, errors = system_command(
                 cmd,
@@ -127,7 +129,7 @@ def main():
                help='SSH user used to connect to Isilon.')
     parser.add('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add('--log_dir', help='Log directory', default='/tmp', required=True)
-    parser.add('--mem_per_cpu', type=int, default=15*1024**3)
+    # parser.add('--mem_per_cpu', type=int, default=15*1024**2)
     parser.add('--num_cpus', type=int, default=24)
     parser.add('--num_gpus', type=int, default=4)
     parser.add('--sample_id', action='append', default=[], required=False)

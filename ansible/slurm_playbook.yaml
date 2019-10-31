@@ -5,7 +5,7 @@
   vars_files:
     - slurm_vars.yaml
   vars:
-    slurm_roles: ["controller", "dbd", "exec"]
+    slurm_roles: ["controller", "dbd"]
 
 - name: Slurm Exec Nodes
   hosts: dgx2

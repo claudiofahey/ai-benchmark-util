@@ -10,16 +10,14 @@ log_level: 10
 
 # Each DGX-2 has 96 CPUs, 16 GPUs, 1510 GiB
 
-mem_per_cpu: 16106127360  # (1510 GiB physical RAM - 6i4 GB reserved) / 96 CPUs
-
 # 1 server
-#num_cpus: 96
-#num_gpus: 16
+num_cpus: 96
+num_gpus: 16
 
 # 1/2 server
 #num_cpus: 48
 #num_gpus: 8
 
 # 1/4 server
-num_cpus: 24
-num_gpus: 4
+#num_cpus: 24
+#num_gpus: 4
