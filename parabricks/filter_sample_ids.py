@@ -6,6 +6,7 @@
 #
 
 """
+Filter a list of sample IDs for those that we have exactly 110 fq.gz files.
 """
 
 import glob

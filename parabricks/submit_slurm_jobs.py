@@ -6,6 +6,10 @@
 #
 
 """
+This script submits Parabricks jobs to Slurm.
+Sample IDs can be provided in a CSV or text file.
+Isilon and Linux caches can be flushed before tests.
+Existing Slurm jobs can be cancelled.
 """
 
 import logging

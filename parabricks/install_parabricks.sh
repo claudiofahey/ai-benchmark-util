@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Install Parabricks to a tar file that contains the Singularity images.
+# This tar file can be extracted for each job.
+
 set -ex
 cd /mnt/isilon/data/genomics
 rm -rf parabricks-installer parabricks-installed
@@ -12,3 +15,4 @@ tar -xvzf parabricks.tar.gz -C parabricks-installer
 --force
 
 tar -czvf parabricks_install.tar.gz -C ./parabricks-installed parabricks
+ls -lh parabricks_install.tar.gz

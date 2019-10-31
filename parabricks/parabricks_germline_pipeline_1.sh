@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sample bash script to run a single sample.
 # This is not used by Slurm.
+# Based on PARABRICKS_ISILON_NVIDIA_WP_v10072019.pdf.
 
 set -ex
 

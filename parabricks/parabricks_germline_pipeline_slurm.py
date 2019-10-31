@@ -8,7 +8,8 @@
 """
 This runs various pbrun commands and records details to a JSON file
 for performance analysis.
-This can be run standalone or it can be submitted as a job using sbatch.
+This can be run standalone or it can be submitted as a Slurm job using
+submit_slurm_jobs.py or submit_slurm_job_1.sh
 """
 
 import configargparse

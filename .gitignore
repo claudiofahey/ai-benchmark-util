@@ -1,5 +1,7 @@
 *.csv
+*.xlsx
 .idea/*
+.ipynb_checkpoints
 old/*
 __pycache__/*
 data/*

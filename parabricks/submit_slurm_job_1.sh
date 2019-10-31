@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# This script can be used to submit a single Parabricks job to Slurm.
 set -ex
 
 NUM_GPUS=${NUM_GPUS:-8}
