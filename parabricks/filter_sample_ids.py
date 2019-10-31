@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Copyright (c) 2019 Dell Inc., or its subsidiaries. All Rights Reserved.
 #

@@ -8,7 +8,9 @@ isilon_host: 172.28.10.151
 log_dir: /mnt/isilon/data/genomics/logs
 log_level: 10
 
-# Each DGX-2 has 96 CPUs and 16 GPUs
+# Each DGX-2 has 96 CPUs, 16 GPUs, 1510 GiB
+
+mem_per_cpu: 16106127360  # (1510 GiB physical RAM - 6i4 GB reserved) / 96 CPUs
 
 # 1 server
 #num_cpus: 96
