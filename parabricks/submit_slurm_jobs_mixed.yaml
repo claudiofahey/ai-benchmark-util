@@ -8,7 +8,7 @@ host:
   - dgx2-3
 input_dir: /mnt/isilon2/data/genomics/from_nas/fq
 isilon_host: 172.28.10.151
-log_dir: /mnt/isilon/data/genomics/logs
+log_dir: /mnt/isilon/data/tf-bench-util/data/parabricks/logs
 num_cpus: 24
 num_gpus: 4
 output_dir: /mnt/isilon1/data/genomics/output

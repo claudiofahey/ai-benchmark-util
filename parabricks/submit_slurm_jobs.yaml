@@ -6,7 +6,7 @@ host:
   - dgx2-2
   - dgx2-3
 isilon_host: 172.28.10.151
-log_dir: /mnt/isilon/data/genomics/logs
+log_dir: /mnt/isilon/data/tf-bench-util/data/parabricks/logs
 log_level: 10
 
 # Each DGX-2 has 96 CPUs, 16 GPUs, 1510 GiB

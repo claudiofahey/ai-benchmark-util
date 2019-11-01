@@ -8,5 +8,5 @@ log_level: 10
 output_dir: /mnt/isilon1/data/genomics/output
 parabricks_install_tgz_file: /mnt/isilon3/data/genomics/parabricks_install.tar.gz
 reference_files_dir: /raid/genomics/reference_files
-summary_file: "/mnt/isilon/data/genomics/summary/%(sample_id)s_%(timestamp)s_%(record_uuid)s.json.bz2"
+summary_file: "/mnt/isilon/data/tf-bench-util/data/parabricks/summary/%(sample_id)s_%(timestamp)s_%(record_uuid)s.json.bz2"
 temp_dir: /raid/genomics/tmp2
