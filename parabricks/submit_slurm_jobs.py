@@ -35,21 +35,15 @@ def parse_bool(v):
 
 
 def flush_caches(args):
-    # Flush Isilon cache.
-    if args.flush:
-        cmd = [
-            'ssh',
-            '-p', '22',
-            '%s@%s' % (args.isilon_user, args.isilon_host),
-            'isi_for_array', 'isi_flush',
-        ]
-        print(' '.join(cmd))
-        subprocess.run(cmd, check=True)
+    if args.flush_isilon:
+        cmd = 'isi_for_array isi_flush'
+        ssh(args.isilon_user, args.isilon_host, cmd, noop=args.noop)
 
-    # Drop caches on all slave nodes.
-    if args.flush:
+    if args.flush_compute:
+        drop_caches_file_name = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'drop_caches.sh')
+        assert os.path.isfile(drop_caches_file_name)
         for host in args.host:
-            ssh('root', host, '/mnt/isilon/data/tf-bench-util/drop_caches.sh')
+            ssh('root', host, drop_caches_file_name, noop=args.noop)
 
 
 def submit_slurm_jobs(args):
@@ -69,14 +63,21 @@ def submit_slurm_jobs(args):
 
     if args.cancel_jobs:
         cmd = ['scancel', '-u', os.environ['USER']]
-        print(' '.join(cmd))
-        subprocess.run(cmd, check=True)
+        system_command(
+            cmd,
+            print_command=True,
+            print_output=True,
+            raise_on_error=True,
+            shell=False,
+            noop=args.noop,
+        )
 
         # for host in args.host:
         #     cmd = 'docker stop \\$(docker ps -a -q --filter ancestor=parabricks/release:v2.3.2 --format="{{.ID}}")'
         #     ssh('root', host, cmd, raise_on_error=False)
 
-    os.makedirs(log_dir, exist_ok=True)
+    if not args.noop:
+        os.makedirs(log_dir, exist_ok=True)
 
     flush_caches(args)
 
@@ -86,43 +87,52 @@ def submit_slurm_jobs(args):
             sample_id = sample_rec[0]
             log_file = os.path.join(log_dir, '%s.log' % sample_id)
             log_files += [log_file]
+            job_name = '%s__%s' % (sample_id, args.batch_uuid)
             cmd = [
                 'sbatch',
                 '--gres', 'gpu:%d' % args.num_gpus,
-                '--job-name', sample_id,
+                '--job-name', job_name,
                 '--output', log_file,
                 '--cpus-per-task', '%d' % args.num_cpus,
                 # '--mem-per-cpu', '%d' % args.mem_per_cpu,
                 '--requeue',
-                'parabricks_germline_pipeline_slurm.py',
+                ]
+            if len(args.host) == 1:
+                cmd += ['--nodelist', ','.join(args.host)]
+            cmd += [
+                'parabricks_germline_pipeline.py',
                 '--sample_id', sample_id,
                 '--batch_uuid', args.batch_uuid,
                 '--num_cpus', '%d' % args.num_cpus,
                 # '--mem_per_cpu', '%d' % args.mem_per_cpu,
             ]
+            cmd += args.unknown_args
             return_code, output, errors = system_command(
                 cmd,
                 print_command=True,
                 print_output=True,
                 raise_on_error=True,
                 shell=False,
+                noop=args.noop,
             )
 
     logging.info('Jobs started. Logging to: %s' % log_dir)
-    subprocess.run(['tail', '-n', '1000', '-F'] + log_files)
+    if not args.noop: subprocess.run(['tail', '-n', '1000', '-F'] + log_files)
 
 
 def main():
     parser = configargparse.ArgParser(
         description='Submit Parabricks jobs to Slurm.',
         config_file_parser_class=configargparse.YAMLConfigFileParser,
+        epilog='Unknown argument are passed through to the script.',
     )
     parser.add('--batch_uuid', required=False)
     parser.add('--cancel_jobs', type=parse_bool, default=False)
     parser.add('--config', '-c', default='submit_slurm_jobs.yaml',
                required=False, is_config_file=True, help='config file path')
-    parser.add('--flush', type=parse_bool, default=False, help='Flush caches')
-    parser.add('--host', '-H', action='append', required=False, help='List of hosts on which to invoke processes.')
+    parser.add('--flush_compute', type=parse_bool, default=False, help='Flush compute caches')
+    parser.add('--flush_isilon', type=parse_bool, default=False, help='Flush Isilon caches')
+    parser.add('--host', '-H', action='append', required=False, help='List of compute hosts on which to invoke processes.')
     parser.add('--isilon_host',
                help='IP address or hostname of an Isilon node. You must enable password-less SSH.')
     parser.add('--isilon_user', default='root',
@@ -130,11 +140,13 @@ def main():
     parser.add('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add('--log_dir', help='Log directory', default='/tmp', required=True)
     # parser.add('--mem_per_cpu', type=int, default=15*1024**2)
+    parser.add('--noop', type=parse_bool, default=False)
     parser.add('--num_cpus', type=int, default=24)
     parser.add('--num_gpus', type=int, default=4)
     parser.add('--sample_id', action='append', default=[], required=False)
     parser.add('--sample_id_file', action='append', default=[], required=False)
-    args = parser.parse_args()
+    args, unknown_args = parser.parse_known_args()
+    args.unknown_args = unknown_args
 
     # Initialize logging
     root_logger = logging.getLogger()

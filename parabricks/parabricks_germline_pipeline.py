@@ -78,8 +78,10 @@ def run_system_command(cmd, rec, shell=False, env=None, noop=False, raise_on_err
 
 def process_sample(args):
     logging.info('BEGIN')
+    record_uuid = str(uuid.uuid4())
     sample_id = args.sample_id
     hostname = socket.gethostname()
+    logging.info('record_uuid=%s' % record_uuid)
     logging.info('sample_id=%s' % sample_id)
     logging.info('hostname=%s' % hostname)
 
@@ -87,7 +89,7 @@ def process_sample(args):
 
     rec = {}
     rec['batch_uuid'] = args.batch_uuid
-    rec['record_uuid'] = str(uuid.uuid4())
+    rec['record_uuid'] = record_uuid
     rec['sample_id'] = sample_id
     rec['hostname'] = hostname
     rec['args'] = args.__dict__
@@ -170,6 +172,9 @@ def process_sample(args):
                 'fq2bam',
                 '--ref', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.fasta'),
                 '--out-bam', bam_file_name,
+                '--out-recal-file', os.path.join(output_dir, '%s.txt' % sample_id),
+                '--knownSites', os.path.join(args.reference_files_dir, 'Mills_and_1000G_gold_standard.indels.hg38.vcf.gz'),
+                '--knownSites', os.path.join(args.reference_files_dir, 'Homo_sapiens_assembly38.dbsnp138.vcf'),
                 '--tmp-dir', temp_dir,
                 '--num-gpus', '%d' % num_gpus,
             ]

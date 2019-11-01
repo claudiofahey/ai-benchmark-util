@@ -3,7 +3,7 @@
   roles:
     - ansible-slurm
   vars_files:
-    - slurm_vars.yaml
+    - slurm_vars_constrained.yaml
   vars:
     slurm_roles: ["controller", "dbd"]
 
@@ -12,6 +12,6 @@
   roles:
     - ansible-slurm
   vars_files:
-    - slurm_vars.yaml
+    - slurm_vars_constrained.yaml
   vars:
     slurm_roles: ["exec"]

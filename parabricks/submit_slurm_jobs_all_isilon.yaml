@@ -1,0 +1,17 @@
+cancel_jobs: false
+deepvariant: false
+flush_compute: true
+flush_isilon: true
+fq2bam: true
+germline: false
+host:
+  - dgx2-2
+input_dir: /mnt/isilon2/data/genomics/from_nas/fq
+isilon_host: 172.28.10.151
+log_dir: /mnt/isilon/data/genomics/logs
+num_cpus: 24
+num_gpus: 4
+output_dir: /mnt/isilon1/data/genomics/output
+parabricks_install_tgz_file: /mnt/isilon3/data/genomics/parabricks_install.tar.gz
+reference_files_dir: /mnt/isilon4/data/genomics/reference_files
+temp_dir: /mnt/isilon5/data/genomics/tmp
