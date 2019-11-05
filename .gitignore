@@ -2,6 +2,7 @@
 *.xlsx
 .idea/*
 .ipynb_checkpoints
+*.svg
 old/*
 __pycache__/*
 data/*
