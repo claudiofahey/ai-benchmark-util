@@ -138,6 +138,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--num_gpus=1',
         '--device=gpu',
         '--force_gpu_compatible=True',
+        '--fuse_decode_and_crop=%s' % args.fuse_decode_and_crop,
         '--data_format=NCHW',
         '--use_fp16=%s' % str(args.fp16),
         '--use_tf_layers=%s' % str(args.fp16),
@@ -186,6 +187,7 @@ def main():
     parser.add('--fp16', type=parse_bool, default=True,  help='Use FP16, otherwise use FP32')
     parser.add('--forward_only', type=parse_bool, default=False,
                help='Perform inference instead of training.')
+    parser.add('--fuse_decode_and_crop', type=parse_bool, default=True)
     parser.add('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add('--isilon_host',
                help='IP address or hostname of an Isilon node. You must enable password-less SSH.')

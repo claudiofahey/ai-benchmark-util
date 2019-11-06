@@ -39,7 +39,7 @@ def _float_feature(value):
 
 
 def _convert_to_example(filename, image_buffer, label, synset, human, xmin, ymin, xmax, ymax,
-                        height, width):
+                        height, width, output_format):
   """Build an Example proto for an example.
 
   Args:
@@ -56,8 +56,7 @@ def _convert_to_example(filename, image_buffer, label, synset, human, xmin, ymin
   """
   colorspace = 'RGB'
   channels = 3
-  image_format = 'JPEG'
-  # image_format = 'PNG'
+  image_format = output_format
 
   example = tf.train.Example(features=tf.train.Features(feature={
       'image/height': _int64_feature(height),
@@ -78,7 +77,7 @@ def _convert_to_example(filename, image_buffer, label, synset, human, xmin, ymin
   return example
 
 
-def process_tf_record_file(input_tf_record_filename, output_tf_record_filename):
+def process_tf_record_file(input_tf_record_filename, output_tf_record_filename, args):
     """Read single TFRecord file, resize images, and write a new TFRecord file.
 
     Note that bounding box values are floats between 0 and 1 and do not need to be scaled.
@@ -95,6 +94,7 @@ def process_tf_record_file(input_tf_record_filename, output_tf_record_filename):
             example = tf.train.Example()
             example.ParseFromString(record_string)
             filename = example.features.feature['image/filename'].bytes_list.value[0]
+            input_format = example.features.feature['image/format'].bytes_list.value[0].decode()
             label = int(example.features.feature['image/class/label'].int64_list.value[0])
             synset = example.features.feature['image/class/synset'].bytes_list.value[0]
             human = example.features.feature['image/class/text'].bytes_list.value[0]
@@ -112,6 +112,7 @@ def process_tf_record_file(input_tf_record_filename, output_tf_record_filename):
             #     output_jpeg_file.write(encoded)
 
             # Decode JPEG.
+            assert input_format == 'JPEG'
             num_components = 3
             image = tf.image.decode_jpeg(original_encoded, channels=num_components)
 
@@ -121,34 +122,48 @@ def process_tf_record_file(input_tf_record_filename, output_tf_record_filename):
             assert original_shape[0] == original_height
             assert original_shape[2] == num_components
 
-            # Calculate new image size.
-            # We must avoid making the image too large.
-            # See https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/jpeg/jpeg_mem.cc#L181
-            total_size_original = original_height * original_width * num_components
-            # print("input_tf_record_filename=%s, original_shape=%s, total_size_original=%g" % (input_tf_record_filename, str(original_shape), total_size_original))
-            total_size_max = 2**29 - 1  # 536 MB uncompressed
-            max_resize_factor = (total_size_max / total_size_original)**0.5
-            resize_factor = 3.0
-            if resize_factor > max_resize_factor:
-                print('New image increased by factor of only %0.3f to avoid max image size; original is %dx%dx%d' %
-                      (max_resize_factor, original_height, original_width, num_components))
-                resize_factor = max_resize_factor
-            new_height = int(original_height * resize_factor)
-            new_width = int(original_width * resize_factor)
-            total_size = new_height * new_width * num_components
-            # print("input_tf_record_filename=%s, total_size=%g" % (input_tf_record_filename, total_size))
-            assert total_size < total_size_max, "total_size=%d, original_shape=%s, resize_factor=%f, input_tf_record_filename=%s" % (
-                total_size, str(original_shape), resize_factor, input_tf_record_filename)
+            resize_factor = args.resize_factor
+            if resize_factor == 1.0:
+                new_height = original_height
+                new_width = original_width
+                resized_image = image
+            else:
+                # Calculate new image size.
+                # We must avoid making the image too large.
+                # See https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/jpeg/jpeg_mem.cc#L181
+                total_size_original = original_height * original_width * num_components
+                # print("input_tf_record_filename=%s, original_shape=%s, total_size_original=%g" % (input_tf_record_filename, str(original_shape), total_size_original))
+                total_size_max = 2**29 - 1  # 536 MB uncompressed
+                max_resize_factor = (total_size_max / total_size_original)**0.5
 
-            # Resize image.
-            resized_image = tf.image.resize_images(image, [new_height, new_width], align_corners=True)
+                if resize_factor > max_resize_factor:
+                    print('New image increased by factor of only %0.3f to avoid max image size; original is %dx%dx%d' %
+                          (max_resize_factor, original_height, original_width, num_components))
+                    resize_factor = max_resize_factor
+                new_height = int(original_height * resize_factor)
+                new_width = int(original_width * resize_factor)
+                total_size = new_height * new_width * num_components
+                # print("input_tf_record_filename=%s, total_size=%g" % (input_tf_record_filename, total_size))
+                assert total_size < total_size_max, "total_size=%d, original_shape=%s, resize_factor=%f, input_tf_record_filename=%s" % (
+                    total_size, str(original_shape), resize_factor, input_tf_record_filename)
+                # Resize image.
+                resized_image = tf.image.resize_images(image, [new_height, new_width], align_corners=True)
 
-            # Encode JPEG.
-            resized_encoded = tf.image.encode_jpeg(
-                tf.cast(resized_image, tf.uint8),
-                quality=100,
-                chroma_downsampling=False,
-            )
+            # Encode image.
+            if args.output_format == 'JPEG':
+                resized_encoded = tf.image.encode_jpeg(
+                    tf.cast(resized_image, tf.uint8),
+                    quality=100,
+                    chroma_downsampling=False,
+                )
+            elif args.output_format == 'PNG':
+                resized_encoded = tf.image.encode_png(
+                    tf.cast(resized_image, tf.uint8),
+                    compression=0,
+                )
+            else:
+                raise Exception('Unsupported output_format')
+
             resized_encoded = resized_encoded.eval()
             resized_len = len(resized_encoded)
             resized_len_total += resized_len
@@ -166,11 +181,11 @@ def process_tf_record_file(input_tf_record_filename, output_tf_record_filename):
             example = _convert_to_example(
                 filename, resized_encoded, label,
                 synset, human, xmin, ymin, xmax, ymax,
-                new_height, new_width)
+                new_height, new_width, args.output_format)
             writer.write(example.SerializeToString())
 
-            # if image_count >= 10:
-            #     break
+            if 0 < args.max_image_count <= image_count:
+                break
 
     original_len_mean = original_len_total / image_count
     resized_len_mean = resized_len_total / image_count
@@ -181,7 +196,7 @@ def process_tf_record_file(input_tf_record_filename, output_tf_record_filename):
         resized_KB_mean=resized_len_mean / 1000))
 
 
-def worker(rank, size, input_files, output_dir):
+def worker(rank, size, input_files, output_dir, args):
     with tf.Session():
         input_tf_record_filenames = sorted(glob(input_files))
         num_files = len(input_tf_record_filenames)
@@ -190,7 +205,7 @@ def worker(rank, size, input_files, output_dir):
             input_tf_record_filename = input_tf_record_filenames[i]
             output_tf_record_filename = join(output_dir, basename(input_tf_record_filename))
             print(rank, input_tf_record_filename, output_tf_record_filename)
-            process_tf_record_file(input_tf_record_filename, output_tf_record_filename)
+            process_tf_record_file(input_tf_record_filename, output_tf_record_filename, args)
             i += size
 
 
@@ -198,10 +213,13 @@ def main():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-i', '--input_files', help='Input files', required=True)
     parser.add_argument('-o', '--output_dir', help='Output directory', required=True)
+    parser.add_argument('--output_format', default='JPEG', help='JPEG or PNG')
+    parser.add_argument('--max_image_count', type=int, default=0)
+    parser.add_argument('--resize_factor', type=float, default=3.0, help='Resize factor for each image dimension.')
     args = parser.parse_args()
-    rank = int(os.environ['OMPI_COMM_WORLD_RANK'])
-    size = int(os.environ['OMPI_COMM_WORLD_SIZE'])
-    worker(rank, size, args.input_files, args.output_dir)
+    rank = int(os.environ.get('OMPI_COMM_WORLD_RANK', '0'))
+    size = int(os.environ.get('OMPI_COMM_WORLD_SIZE', '1'))
+    worker(rank, size, args.input_files, args.output_dir, args)
 
 
 if __name__ == '__main__':
