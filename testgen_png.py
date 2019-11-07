@@ -21,7 +21,7 @@ def add_test():
     # else:
     #     raise Exception()
     #
-    data_dir_suffix = '-png'
+    data_dir_suffix = '-png2'
     fuse_decode_and_crop = False
 
     data_dir_template = '/mnt/isilon%%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
@@ -99,8 +99,8 @@ noop = False
 storage_type = 'isilon'
 
 for repeat in range(1):
-    for cached in [True]:
-        for model in ['trivial']:
+    for cached in [False]:
+        for model in ['trivial','resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
             for batch_group_size in [10]:
                 if model == 'vgg16':
                     batch_sizes = [192]
@@ -108,11 +108,11 @@ for repeat in range(1):
                     batch_sizes = [256]
                 for batch_size in batch_sizes:
                     for data_dir_template_count in [1 if cached else 16]:
-                        for datasets_prefetch_buffer_size in [20,5]:
-                            for datasets_num_private_threads in [11,10,8,6,4]:
-                                for num_batches in [250]:
-                                    for num_hosts in [1]:
-                                        for npernode in [16]:
+                        for datasets_prefetch_buffer_size in [20]:
+                            for datasets_num_private_threads in [11]:
+                                for num_batches in [1000]:
+                                    for num_hosts in [3,2,1]:
+                                        for npernode in [16,12,8,4]:
                                             np = num_hosts * npernode
                                             for num_inter_threads in [40]:
                                                 for num_intra_threads in [1]:
