@@ -148,12 +148,12 @@ def main():
     )
     parser.add_argument('--container_name', action='store', default='dask',
                         help='Name to assign to the containers.')
-    parser.add_argument('--device_memory_limit_gib', type=float, default=26)
+    parser.add_argument('--device_memory_limit_gib', type=float, default=26.0)
     parser.add_argument('--docker_image', action='store',
                         default='nvcr.io/nvidia/rapidsai/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04',
                         help='Docker image tag.')
     parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
-    parser.add_argument('--memory_limit_gib', type=float, default=64)
+    parser.add_argument('--memory_limit_gib', type=float, default=64.0)
     parser.add_argument('--nostart', dest='start', action='store_false',
                         default=True, help='Do not start containers')
     parser.add_argument('--scheduler_host', default='')
