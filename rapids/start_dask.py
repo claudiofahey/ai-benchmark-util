@@ -6,7 +6,7 @@
 #
 
 """
-This script starts a Dask cluster on multiple hosts via SSH.
+Start Dask cluster on multiple hosts using SSH and Docker.
 """
 
 
@@ -103,6 +103,14 @@ def start_notebook(args):
 
 def start_worker(args, host):
     container_name = args.container_name + '-worker'
+    dask_worker_cmd = [
+        'dask-cuda-worker',
+        '--nthreads', '5',
+        '--memory-limit', '%d' % int(args.memory_limit_gib * 1024**3),
+        '--device-memory-limit', '%d' % int(args.device_memory_limit_gib * 1024**3),
+        '--local-directory', '/dask-local-directory',
+        '%s:8786' % args.scheduler_host,
+    ]
     cmd = [
         'ssh',
         '-p', '22',
@@ -112,13 +120,14 @@ def start_worker(args, host):
         '--rm',
         '--detach',
         '-v', '/mnt:/mnt',
+        '-v', '/raid/tmp:/dask-local-directory',
         '--network=host',
         '--name', container_name,
         '--entrypoint', '/usr/bin/tini',     # do not run Jupyter Notebook
         args.docker_image,
         '--',
         'bash', '-c',
-        '"source activate rapids && dask-cuda-worker %s:8786"' % args.scheduler_host,
+        '"source activate rapids && %s"' % ' '.join(dask_worker_cmd),
     ]
     print(' '.join(cmd))
     subprocess.run(cmd, check=True)
@@ -133,25 +142,27 @@ def start_containers(args):
 
 def main():
     parser = configargparse.ArgParser(
-        description='Start Docker containers for TensorFlow benchmarking',
+        description='Start Dask cluster on multiple hosts using SSH and Docker',
         config_file_parser_class=configargparse.YAMLConfigFileParser,
         default_config_files=['start_dask.yaml'],
     )
     parser.add_argument('--container_name', action='store', default='dask',
                         help='Name to assign to the containers.')
+    parser.add_argument('--device_memory_limit_gib', type=float, default=26)
     parser.add_argument('--docker_image', action='store',
                         default='nvcr.io/nvidia/rapidsai/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04',
                         help='Docker image tag.')
     parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
+    parser.add_argument('--memory_limit_gib', type=float, default=64)
     parser.add_argument('--nostart', dest='start', action='store_false',
-                        default=True,
-                        help='Start containers')
-    parser.add_argument('--user', action='store',
-                        default='root',
-                        help='SSH user')
+                        default=True, help='Do not start containers')
     parser.add_argument('--scheduler_host', default='')
+    parser.add_argument('--user', action='store',
+                        default='root', help='SSH user')
     args = parser.parse_args()
-    args.scheduler_host = args.host[0]
+
+    if args.scheduler_host == '':
+        args.scheduler_host = args.host[0]
 
     stop_containers(args)
     if args.start:
