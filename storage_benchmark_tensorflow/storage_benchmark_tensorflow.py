@@ -26,6 +26,7 @@ import json
 import os
 import subprocess
 import sys
+import uuid
 from tensorflow.contrib.data.python.ops import batching
 from tensorflow.contrib.data.python.ops import interleave_ops
 from tensorflow.contrib.data.python.ops import threadpool
@@ -97,7 +98,7 @@ def worker(rank, size, args):
         print('storage_benchmark_tensorflow: BEGIN')
         print(datetime.datetime.utcnow())
 
-    metrics_file_name = os.path.join(args.metrics_directory, 'storage_benchmark_tensorflow_metrics-%d.log' % rank)
+    metrics_file_name = os.path.join(args.metrics_directory, 'storage_benchmark_tensorflow_metrics-%s-%d.log' % (args.test_uuid, rank))
     with open(metrics_file_name, 'a') as metrics_file:
 
         hostname = socket.gethostname()
@@ -425,6 +426,7 @@ def main():
     parser.add('--round_robin_files', type=parse_bool, default=False)
     parser.add('--run_sec', type=float, default=60*60*4, help='Run time in seconds')
     parser.add('--sync', type=parse_bool, default=False, help='Synchronize workers after each batch')
+    parser.add('--test_uuid', default=str(uuid.uuid4()))
     parser.add('--throttle_sleep_sec', type=float, default=0.01)
     parser.add('--throttle_total_rate_bytes_per_sec', type=float, default=0, help='If 0, unthrottled')
     parser.add('--warmup_sec', type=float, default=10.0, help='Warm-up time in seconds')
