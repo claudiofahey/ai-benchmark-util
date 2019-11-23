@@ -1,3 +1,6 @@
+device_memory_limit_gib: 26.0
+docker_image: claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom
 host:
   - 10.200.11.12
   - 10.200.11.13
+memory_limit_gib: 64.0
