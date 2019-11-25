@@ -1,6 +1,13 @@
 device_memory_limit_gib: 26.0
-docker_image: claudiofahey/rapidsai:a359097c3c18a534b91557d5abe772c73ef57d11de3dfb632e1516b0a01745f1
+
+# Use below for Parquet. Use build_docker_nightly.sh.
+#docker_image: claudiofahey/rapidsai:a359097c3c18a534b91557d5abe772c73ef57d11de3dfb632e1516b0a01745f1
+
+# Use below for ORC. Use build_docker_010.sh.
+docker_image: claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom
+
 host:
   - 10.200.11.12
   - 10.200.11.13
+  - 10.200.11.11
 memory_limit_gib: 64.0
