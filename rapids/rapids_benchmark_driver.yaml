@@ -1,0 +1,15 @@
+docker_image: claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom
+flush_compute: True
+flush_isilon: True
+host:
+  - 10.200.11.12
+  - 10.200.11.13
+  - 10.200.11.11
+input_file:
+#  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/part.1\\*.orc"
+#  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/part.22\\*.orc"
+  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/\\*.orc"
+  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/\\*.orc"
+isilon_host: 172.28.10.151
+num_workers: 48
+scheduler_address: "10.200.11.12:8786"

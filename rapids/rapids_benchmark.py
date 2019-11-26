@@ -5,6 +5,10 @@
 # Written by Claudio Fahey <claudio.fahey@dell.com>
 #
 
+"""
+Execute RAPIDS benchmark.
+This should run within a RAPIDS container and connect to an existing Dask cluster.
+"""
 
 import configargparse
 import dask_cudf
@@ -49,7 +53,10 @@ def run_benchmark(args):
     client = Client(address=args.scheduler_address)
     logging.info('client=%s' % str(client))
 
-    input_files = [f for p in args.input_file for f in glob.glob(p)]
+    logging.info('Waiting for %d Dask workers' % args.num_workers)
+    client.wait_for_workers(args.num_workers)
+
+    input_files = [f for p in args.input_file for f in sorted(glob.glob(p))]
     logging.info('input_files=%s' % str(input_files))
 
     perf_ddf = gpu_load_performance_data(input_files)
@@ -97,10 +104,11 @@ def main():
         description='Execute RAPIDS benchmarks',
         config_file_parser_class=configargparse.YAMLConfigFileParser,
     )
-    parser.add('--config', '-c', required=False, is_config_file=True, help='config file path')
-    parser.add('--input_file', action='append', help='Input file', required=True)
-    parser.add('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
-    parser.add('--scheduler_address', default='127.0.0.1:8786', help='Dask scheduler address')
+    parser.add_argument('--config', '-c', required=False, is_config_file=True, help='config file path')
+    parser.add_argument('--input_file', action='append', help='Input file', required=True)
+    parser.add_argument('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
+    parser.add_argument('--num_workers', type=int, default=1)
+    parser.add_argument('--scheduler_address', default='127.0.0.1:8786', help='Dask scheduler address')
     args = parser.parse_args()
 
     root_logger = logging.getLogger()
