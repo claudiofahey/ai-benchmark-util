@@ -5,4 +5,5 @@ MAINTAINER Claudio Fahey <Claudio.Fahey@dell.com>
 
 RUN source activate rapids && \
     conda install -y \
-    python-snappy
+        python-snappy \
+        configargparse
