@@ -75,6 +75,7 @@ def start_scheduler(args):
         '--rm',
         '--detach',
         '-v', '/mnt:/mnt',
+        ] + [a for v in args.volume for a in ['-v', v]] + [
         '--network=host',
         '--name', container_name,
         args.docker_image,
@@ -97,6 +98,7 @@ def start_notebook(args):
         '--detach',
         '-v', '/mnt:/rapids/notebooks/mnt',
         '-v', '/mnt:/mnt',
+        ] + [a for v in args.volume for a in ['-v', v]] + [
         '--network=host',
         '--name', container_name,
         args.docker_image,
@@ -122,6 +124,7 @@ def start_worker(args, host):
         '--detach',
         '-v', '/mnt:/mnt',
         '-v', '/raid/tmp:/dask-local-directory',
+        ] + [a for v in args.volume for a in ['-v', v]] + [
         '--network=host',
         '--name', container_name,
         args.docker_image,
@@ -185,6 +188,7 @@ def main():
     parser.add_argument('--start_notebook', type=parse_bool, default=True)
     parser.add_argument('--user', action='store',
                         default='root', help='SSH user')
+    parser.add_argument('--volume', '-v', action='append')
     parser.add_argument('--wait', type=parse_bool, default=False)
     args = parser.parse_args()
 

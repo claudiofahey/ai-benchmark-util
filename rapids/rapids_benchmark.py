@@ -48,7 +48,6 @@ def gpu_load_performance_data(performance_path):
 
 def run_benchmark(args):
     logging.info('run_benchmark: BEGIN')
-    logging.info('args=%s' % str(args))
 
     client = Client(address=args.scheduler_address)
     logging.info('client=%s' % str(client))
@@ -57,7 +56,8 @@ def run_benchmark(args):
     client.wait_for_workers(args.num_workers)
 
     input_files = [f for p in args.input_file for f in sorted(glob.glob(p))]
-    logging.info('input_files=%s' % str(input_files))
+    logging.info('len(input_files)=%d' % len(input_files))
+    logging.debug('input_files=%s' % str(input_files))
 
     perf_ddf = gpu_load_performance_data(input_files)
     logging.debug('perf_ddf=%s' % str(perf_ddf.head()))

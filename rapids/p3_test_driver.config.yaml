@@ -1,0 +1,7 @@
+isilon_host: 172.28.10.151
+isilon_node_pool_name: f800_24tb-ssd_256gb
+isilon_user: root
+_isilon_password: a
+result_filename: ../data/p3_test_driver/results/%(test)s_%(timestamp)s_%(test_uuid)s.json.bz2
+status_html: ../data/p3_test_driver/status/p3_test_driver.html
+test_driver_log_filename: ../data/p3_test_driver/logs/p3_test_driver.log
