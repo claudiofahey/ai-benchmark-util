@@ -141,7 +141,7 @@ def main():
     parser.add_argument('--scheduler_host', default='')
     parser.add_argument('--user', action='store',
                         default='root', help='SSH user')
-    parser.add_argument('--volume', '-v', action='append')
+    parser.add_argument('--volume', '-v', action='append', default=[])
     args, unknown_args = parser.parse_known_args()
 
     os.chdir(script_dir)

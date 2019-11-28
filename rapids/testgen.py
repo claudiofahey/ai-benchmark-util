@@ -61,13 +61,26 @@ volume = [
 ]
 keep_dask_running = False
 
-for repeat in range(3):
+for repeat in range(0):
     for cached in [True]:
+        for storage_type in ['isilon']:
+            base_dir = base_dir_map[storage_type]
+            for compression in ['snappy']:
+                for partitions in [96]:
+                    for docker_image in ['claudiofahey/rapidsai:a359097c3c18a534b91557d5abe772c73ef57d11de3dfb632e1516b0a01745f1']:
+                        for num_workers in [48]:
+                            for input_file in [[base_dir + '/from-spark3.orc/\\*.orc']]:
+                                for warmup in [False]:
+                                                    add_test()
+
+# Full suite
+for repeat in range(0):
+    for cached in [False, True]:
         for storage_type in ['local','isilon']:
             base_dir = base_dir_map[storage_type]
             for compression in ['snappy', 'None']:
                 for partitions in [96]:
-                    for docker_image in ['claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom']:
+                    for docker_image in ['claudiofahey/rapidsai:a359097c3c18a534b91557d5abe772c73ef57d11de3dfb632e1516b0a01745f1']:
                         for num_workers in [48]:
                             for input_file in [[base_dir + '/perf-%s.orc/\\*.orc' % (compression,)]]:
                                 for warmup in [True, False] if cached else [False]:

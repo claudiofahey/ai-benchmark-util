@@ -9,4 +9,4 @@ docker run \
 -v /mnt:/home/jovyan/mnt \
 -e JUPYTER_ENABLE_LAB=yes \
 --name spark-notebook \
-jupyter/all-spark-notebook:ae5f7e104dd5
+jupyter/all-spark-notebook:ad3574d3c5c7

@@ -188,7 +188,7 @@ def main():
     parser.add_argument('--start_notebook', type=parse_bool, default=True)
     parser.add_argument('--user', action='store',
                         default='root', help='SSH user')
-    parser.add_argument('--volume', '-v', action='append')
+    parser.add_argument('--volume', '-v', action='append', default=[])
     parser.add_argument('--wait', type=parse_bool, default=False)
     args = parser.parse_args()
 

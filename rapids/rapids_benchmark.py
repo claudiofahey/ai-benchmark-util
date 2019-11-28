@@ -93,6 +93,7 @@ def run_benchmark(args):
         compute_sec_list=compute_sec_list,
         num_input_files=len(input_files),
         persist_sec=persist_sec,
+        dask_cudf_version=dask_cudf.__version__,
     )
     logging.info('FINAL RESULTS JSON: ' + json.dumps(results))
 
