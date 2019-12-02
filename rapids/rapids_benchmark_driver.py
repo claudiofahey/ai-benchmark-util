@@ -67,6 +67,7 @@ def run_benchmark_driver(args, unknown_args):
         '--docker_image', args.docker_image,
         ] + [a for h in args.host for a in ['--host', h]] + [
         '--memory_limit_gib', str(args.memory_limit_gib),
+        '--num_worker_hosts', str(args.num_worker_hosts),
         '--scheduler_host', args.scheduler_host,
         '--start_notebook', str(False),
         ] + [a for v in args.volume for a in ['-v', v]] + [
@@ -84,6 +85,7 @@ def run_benchmark_driver(args, unknown_args):
 
     host = args.benchmark_host
     container_name = args.container_name + '-driver'
+    num_workers = args.num_worker_hosts * args.num_gpus_per_host
     cmd = [
         'ssh',
         '-p', '22',
@@ -96,7 +98,7 @@ def run_benchmark_driver(args, unknown_args):
         '--name', container_name,
         args.docker_image,
         '/mnt/isilon/data/tf-bench-util/rapids/rapids_benchmark.py',
-        '--num_workers', str(args.num_workers),
+        '--num_workers', str(num_workers),
         '--scheduler_address', '%s:8786' % args.scheduler_host,
     ]
     cmd += unknown_args
@@ -136,7 +138,8 @@ def main():
                         help='SSH user used to connect to Isilon.')
     parser.add_argument('--keep_dask_running', type=parse_bool, default=False)
     parser.add_argument('--memory_limit_gib', type=float, default=64.0)
-    parser.add_argument('--num_workers', type=int, default=1)
+    parser.add_argument('--num_gpus_per_host', type=int, default=16)
+    parser.add_argument('--num_worker_hosts', type=int, default=0)
     parser.add_argument('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add_argument('--scheduler_host', default='')
     parser.add_argument('--user', action='store',
@@ -155,6 +158,9 @@ def main():
 
     if args.scheduler_host == '':
         args.scheduler_host = args.host[0]
+
+    if args.num_worker_hosts <= 0:
+        args.num_worker_hosts = len(args.host)
 
     logging.info('args=%s' % str(args))
     logging.info('unknown_args=%s' % str(unknown_args))

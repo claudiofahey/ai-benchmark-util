@@ -163,8 +163,9 @@ def start_containers(args):
     if args.start_notebook:
         start_notebook(args)
     start_scheduler(args)
+    worker_hosts = args.host[0:args.num_worker_hosts]
     with Pool(16) as p:
-        p.map(functools.partial(start_worker, args), args.host)
+        p.map(functools.partial(start_worker, args), worker_hosts)
     if args.wait:
         wait_for_cluster(args)
 
@@ -181,8 +182,9 @@ def main():
     parser.add_argument('--docker_image', action='store',
                         default='nvcr.io/nvidia/rapidsai/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04',
                         help='Docker image tag.')
-    parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
+    parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to run Dask services.')
     parser.add_argument('--memory_limit_gib', type=float, default=64.0)
+    parser.add_argument('--num_worker_hosts', type=int, default=0, help='Number of hosts to start Dask workers on (0=all)')
     parser.add_argument('--scheduler_host', default='')
     parser.add_argument('--start', type=parse_bool, default=True)
     parser.add_argument('--start_notebook', type=parse_bool, default=True)
@@ -194,6 +196,9 @@ def main():
 
     if args.scheduler_host == '':
         args.scheduler_host = args.host[0]
+
+    if args.num_worker_hosts <= 0:
+        args.num_worker_hosts = len(args.host)
 
     stop_containers(args)
     if args.start:

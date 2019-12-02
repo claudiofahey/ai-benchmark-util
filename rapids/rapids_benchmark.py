@@ -16,6 +16,7 @@ from dask.distributed import Client, wait
 import glob
 import json
 import logging
+import os
 import sys
 import time
 
@@ -59,6 +60,8 @@ def run_benchmark(args):
     logging.info('len(input_files)=%d' % len(input_files))
     logging.debug('input_files=%s' % str(input_files))
 
+    input_file_sizes = [os.path.getsize(f) for f in input_files]
+
     perf_ddf = gpu_load_performance_data(input_files)
     logging.debug('perf_ddf=%s' % str(perf_ddf.head()))
 
@@ -92,6 +95,7 @@ def run_benchmark(args):
         checksum=checksum,
         compute_sec_list=compute_sec_list,
         num_input_files=len(input_files),
+        input_file_sizes=input_file_sizes,
         persist_sec=persist_sec,
         dask_cudf_version=dask_cudf.__version__,
     )
