@@ -9,7 +9,7 @@ host:
 input_file:
 #  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/part.1\\*.orc"
 #  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/part.22\\*.orc"
-  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/\\*.orc"
+  - "/mnt/isilon1/data/mortgage/perf-from-spark-3.00x-48p-2048MiB-snappy.orc.1/\\*.orc"
 #  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/\\*.orc"
 isilon_host: 172.28.10.151
 keep_dask_running: True
