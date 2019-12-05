@@ -96,12 +96,12 @@ volume = [
 keep_dask_running = False
 single_batch = False
 isilon_access_pattern = 'streaming'
-#docker_image = 'claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom'
-docker_image = 'claudiofahey/rapidsai:46ee5e319153ba1b29021aba56db9a47ab81f1b978ae7c03e73c402cbc9dcf4b'
+docker_image = 'claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom'
+#docker_image = 'claudiofahey/rapidsai:46ee5e319153ba1b29021aba56db9a47ab81f1b978ae7c03e73c402cbc9dcf4b'
 
 for repeat in range(1):
-    for cached in [False]:
-        for storage_type in ['isilon']:
+    for cached in [True]:
+        for storage_type in ['local','isilon']:
             base_dir = base_dir_map[storage_type]
             for size_multiplier in [3.0]:
                 for partitions in [48]:
@@ -111,7 +111,7 @@ for repeat in range(1):
                                     for num_worker_hosts in [3]:
                                         for num_gpus_per_host in [16]:
                                             for num_batches in [100]:
-                                                for cudf_engine in ['pyarrow']:
+                                                for cudf_engine in ['cudf']:
                                                     for warmup in [False]:
                                                         add_test()
 
