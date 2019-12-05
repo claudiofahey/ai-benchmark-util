@@ -61,7 +61,7 @@ Click Run -> Run All Cells.
 dgxuser@dgx2-1:~$
 cd rapids
 sudo apt install python3-pip
-pip3 install setuptools
+pip3 install setuptools wheel
 pip3 install --requirement requirements.txt
 ```
 

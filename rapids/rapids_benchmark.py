@@ -95,6 +95,8 @@ def run_benchmark(args):
         glob_t0 = time.time()
         input_files = [sorted(glob.glob(p)) for p in args.input_file]
         glob_sec = time.time() - glob_t0
+        for f, spec in zip(input_files, args.input_file):
+            assert len(f) > 0, 'No files match %s' % spec
 
         logging.info('Getting file sizes')
         getsize_t0 = time.time()

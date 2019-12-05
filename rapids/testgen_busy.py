@@ -36,7 +36,7 @@ def add_test():
     t = dict(
         test='simple',
         record_as_test='rapids',
-        max_test_attempts=2,
+        max_test_attempts=3,
         base_dir=base_dir,
         cached=cached,
         command_template=[
@@ -107,11 +107,11 @@ docker_image = 'claudiofahey/rapidsai:46ee5e319153ba1b29021aba56db9a47ab81f1b978
 #data_file_prefix = 'perf-from-spark'
 data_file_prefix = 'perf-no-strings'
 
-for repeat in range(1):
+for repeat in range(3):
     for cached in [False]:
-        for storage_type in ['isilon']:     # 'isilon','local'
+        for storage_type in ['isilon','local']:     # 'isilon','local'
             base_dir = base_dir_map[storage_type]
-            for size_multiplier in [3.0]:
+            for size_multiplier in [6.0]:
                 for partitions in [48]:
                     for stripe_size_MiB in [2048]:
                         for compression in ['snappy']:

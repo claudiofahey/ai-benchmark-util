@@ -1,3 +1,4 @@
 ConfigArgParse
+joblib
 PyYAML
 p3_test_driver

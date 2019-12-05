@@ -11,4 +11,5 @@ host:
   - 10.200.11.13
   - 10.200.11.11
 memory_limit_gib: 64.0
-num_containers_per_host: 2
+num_containers_per_host: 16
+wait: True

@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 set -ex
-cat ../hosts | xargs -i -P 0 ssh dgxuser@{} rsync -rvv --exclude=*.tgz --delete --times /mnt/isilon1/data/mortgage /raid/
+scriptdir=$(dirname "$(readlink -f "$0")")
+cat ../hosts | xargs -i -P 0 ssh dgxuser@{} ${scriptdir}/copy_data_to_local2.sh
