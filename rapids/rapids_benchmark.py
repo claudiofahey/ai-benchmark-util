@@ -33,28 +33,7 @@ def parse_bool(v):
 
 
 def gpu_load_performance_data(performance_path, **kwargs):
-    """ Loads performance data
-
-    Returns
-    -------
-    GPU DataFrame
-    """
-
-    cols = [
-        "loan_id", "monthly_reporting_period", "servicer", "interest_rate", "current_actual_upb",
-        "loan_age", "remaining_months_to_legal_maturity", "adj_remaining_months_to_maturity",
-        "maturity_date", "msa", "current_loan_delinquency_status", "mod_flag", "zero_balance_code",
-        "zero_balance_effective_date", "last_paid_installment_date", "foreclosed_after",
-        "disposition_date", "foreclosure_costs", "prop_preservation_and_repair_costs",
-        "asset_recovery_costs", "misc_holding_expenses", "holding_taxes", "net_sale_proceeds",
-        "credit_enhancement_proceeds", "repurchase_make_whole_proceeds", "other_foreclosure_proceeds",
-        "non_interest_bearing_upb", "principal_forgiveness_upb", "repurchase_make_whole_proceeds_flag",
-        "foreclosure_principal_write_off_amount", "servicing_activity_indicator"
-    ]
-
     ddf = dask_cudf.read_orc(performance_path, **kwargs)
-    # Fix column names from ORC file
-    ddf = ddf.rename(columns=dict(zip(ddf.columns, cols)))
     return ddf
 
 

@@ -28,7 +28,6 @@ def get_data_path(
 def add_test():
     flush_compute = not cached
     flush_isilon = not cached
-    data_file_prefix = 'perf-from-spark'
     input_dir = [
         get_data_path(base_dir, data_file_prefix, size_multiplier, partitions, stripe_size_MiB, compression, file_format, batch)
         for batch in range(num_batches)]
@@ -105,10 +104,12 @@ single_batch = False
 isilon_access_pattern = 'streaming'
 # docker_image = 'claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom'
 docker_image = 'claudiofahey/rapidsai:46ee5e319153ba1b29021aba56db9a47ab81f1b978ae7c03e73c402cbc9dcf4b'
+#data_file_prefix = 'perf-from-spark'
+data_file_prefix = 'perf-no-strings'
 
-for repeat in range(3):
+for repeat in range(1):
     for cached in [False]:
-        for storage_type in ['isilon','local']:
+        for storage_type in ['isilon']:     # 'isilon','local'
             base_dir = base_dir_map[storage_type]
             for size_multiplier in [3.0]:
                 for partitions in [48]:

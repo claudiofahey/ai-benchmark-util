@@ -41,11 +41,9 @@ The output will be on the NAS.
 dgxuser@dgx2-1:~$
 cd rapids
 ./start_spark_notebook.sh
-docker logs spark-notebook
 ```
 
 Open your browser to Jupyter Notebook at http://localhost:8886.
-Login using the token shown in the last command above.
 
 Open the notebook [mortgage_etl_create_orc_spark_1.ipynb](mortgage_etl_create_orc_spark_1.ipynb).
 
