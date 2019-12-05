@@ -48,13 +48,15 @@ def add_test():
             '--flush_isilon', '%d' % flush_isilon,
             '--isilon_host', '%(isilon_host)s',
             '--keep_dask_running', '%d' % keep_dask_running,
+            '--num_containers_per_host', '%d' % num_containers_per_host,
             '--num_gpus_per_host', '%d' % num_gpus_per_host,
             '--num_worker_hosts', '%d' % num_worker_hosts,
             '--single_batch', '%d' % single_batch,
             ] + [a for h in host for a in ['--host', h]] + [
             ] + [a for i in input_file for a in ['--input_file', i]] + [
             ] + [a for v in volume for a in ['-v', v]] + [
-        ],
+            ] + [a for v in volume_template for a in ['--volume_template', v]] + [
+            ],
         compression=compression,
         data_file_prefix=data_file_prefix,
         docker_image=docker_image,
@@ -65,6 +67,7 @@ def add_test():
         input_file=input_file,
         isilon_access_pattern=isilon_access_pattern,
         json_regex=['FINAL RESULTS JSON: (.*)$'],
+        num_containers_per_host=num_containers_per_host,
         num_batches=num_batches,
         num_gpus_per_host=num_gpus_per_host,
         num_workers=num_workers,
@@ -74,6 +77,7 @@ def add_test():
         size_multiplier=size_multiplier,
         storage_type=storage_type,
         stripe_size_MiB=stripe_size_MiB,
+        volume_template=volume_template,
         warmup=warmup,
     )
     test_list.append(t)
@@ -88,20 +92,23 @@ host = [
 ]
 base_dir_map = dict(
     local='/raid/mortgage',
-    isilon='/mnt/isilon1/data/mortgage',
+    isilon='/isilon/data/mortgage',
 )
 volume = [
     '/raid:/raid',
 ]
+volume_template = [
+    '/mnt/isilon%%d:/isilon',
+]
 keep_dask_running = False
 single_batch = False
 isilon_access_pattern = 'streaming'
-docker_image = 'claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom'
-#docker_image = 'claudiofahey/rapidsai:46ee5e319153ba1b29021aba56db9a47ab81f1b978ae7c03e73c402cbc9dcf4b'
+# docker_image = 'claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom'
+docker_image = 'claudiofahey/rapidsai:46ee5e319153ba1b29021aba56db9a47ab81f1b978ae7c03e73c402cbc9dcf4b'
 
-for repeat in range(1):
-    for cached in [True]:
-        for storage_type in ['local','isilon']:
+for repeat in range(3):
+    for cached in [False]:
+        for storage_type in ['isilon','local']:
             base_dir = base_dir_map[storage_type]
             for size_multiplier in [3.0]:
                 for partitions in [48]:
@@ -110,10 +117,11 @@ for repeat in range(1):
                             for file_format in ['orc']:
                                     for num_worker_hosts in [3]:
                                         for num_gpus_per_host in [16]:
-                                            for num_batches in [100]:
-                                                for cudf_engine in ['cudf']:
-                                                    for warmup in [False]:
-                                                        add_test()
+                                            for num_containers_per_host in [16]:
+                                                for num_batches in [50]:
+                                                    for cudf_engine in ['cudf']:
+                                                        for warmup in [False]:
+                                                            add_test()
 
 print(json.dumps(test_list, sort_keys=True, indent=4, ensure_ascii=False))
 print('Number of tests generated: %d' % len(test_list), file=sys.stderr)

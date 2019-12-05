@@ -67,11 +67,13 @@ def run_benchmark_driver(args, unknown_args):
         '--docker_image', args.docker_image,
         ] + [a for h in args.host for a in ['--host', h]] + [
         '--memory_limit_gib', str(args.memory_limit_gib),
+        '--num_containers_per_host', str(args.num_containers_per_host),
         '--num_worker_hosts', str(args.num_worker_hosts),
         '--scheduler_host', args.scheduler_host,
         '--start_notebook', str(False),
         ] + [a for v in args.volume for a in ['-v', v]] + [
-    ]
+        ] + [a for v in args.volume_template for a in ['--volume_template', v]] + [
+        ]
     logging.info(' '.join(start_dask_cmd))
     subprocess.run(start_dask_cmd, check=True)    
     t0 = time.time()
@@ -86,6 +88,7 @@ def run_benchmark_driver(args, unknown_args):
     host = args.benchmark_host
     container_name = args.container_name + '-driver'
     num_workers = args.num_worker_hosts * args.num_gpus_per_host
+    calculated_volumes = [v % 1 for v in args.volume_template]
     cmd = [
         'ssh',
         '-p', '22',
@@ -95,6 +98,7 @@ def run_benchmark_driver(args, unknown_args):
         '--rm',
         '-v', '/mnt:/mnt',
         ] + [a for v in args.volume for a in ['-v', v]] + [
+        ] + [a for v in calculated_volumes for a in ['-v', v]] + [
         '--name', container_name,
         args.docker_image,
         '/mnt/isilon/data/tf-bench-util/rapids/rapids_benchmark.py',
@@ -138,13 +142,17 @@ def main():
                         help='SSH user used to connect to Isilon.')
     parser.add_argument('--keep_dask_running', type=parse_bool, default=False)
     parser.add_argument('--memory_limit_gib', type=float, default=64.0)
+    parser.add_argument('--num_containers_per_host', type=int, default=1)
     parser.add_argument('--num_gpus_per_host', type=int, default=16)
     parser.add_argument('--num_worker_hosts', type=int, default=0)
     parser.add_argument('--log_level', type=int, default=logging.INFO, help='10=DEBUG,20=INFO')
     parser.add_argument('--scheduler_host', default='')
     parser.add_argument('--user', action='store',
                         default='root', help='SSH user')
-    parser.add_argument('--volume', '-v', action='append', default=[])
+    parser.add_argument('--volume', '-v', action='append', default=[],
+                        help='Docker volume spec')
+    parser.add_argument('--volume_template', action='append', default=[],
+                        help='Docker volume spec with "%d" replaced by the worker container number starting with 1')
     args, unknown_args = parser.parse_known_args()
 
     os.chdir(script_dir)

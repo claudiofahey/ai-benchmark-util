@@ -132,12 +132,12 @@ def run_benchmark(args):
             logging.info('Computing batch %d' % batch)
             compute_t0 = time.time()
             computed = perf_ddf.groupby(['servicer'])['interest_rate'].max().compute()
-            compute_sec = time.time() - compute_t0
-            compute_sec_list += [compute_sec]
-            logging.info('compute_sec=%f' % compute_sec)
             logging.info('len(computed)=%s' % len(computed))
             logging.debug('computed=%s' % str(computed))
             del perf_ddf
+            compute_sec = time.time() - compute_t0
+            compute_sec_list += [compute_sec]
+            logging.info('compute_sec=%f' % compute_sec)
 
         results = dict(
             create_ddf_sec=create_ddf_sec,

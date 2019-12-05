@@ -66,6 +66,7 @@ def init_hosts(args):
 def start_scheduler(args):
     host = args.scheduler_host
     container_name = args.container_name + '-scheduler'
+    calculated_volumes = [v % 1 for v in args.volume_template]
     cmd = [
         'ssh',
         '-p', '22',
@@ -76,6 +77,7 @@ def start_scheduler(args):
         '--detach',
         '-v', '/mnt:/mnt',
         ] + [a for v in args.volume for a in ['-v', v]] + [
+        ] + [a for v in calculated_volumes for a in ['-v', v]] + [
         '--network=host',
         '--name', container_name,
         args.docker_image,
@@ -83,6 +85,39 @@ def start_scheduler(args):
     ]
     print(' '.join(cmd))
     subprocess.run(cmd, check=True)
+
+
+def start_worker(args, host):
+    gpu_ids = [str(i) for i in range(args.num_gpus_per_host)]
+    for container_number in range(args.num_containers_per_host):
+        container_name = '%s-worker-%d' % (args.container_name, container_number)
+        calculated_volumes = [v % (container_number + 1) for v in args.volume_template]
+        cuda_visible_devices = ','.join(gpu_ids[container_number::args.num_containers_per_host])
+        cmd = [
+            'ssh',
+            '-p', '22',
+            '%s@%s' % (args.user, host),
+            'nvidia-docker',
+            'run',
+            '--rm',
+            '--detach',
+            '-e', 'CUDA_VISIBLE_DEVICES=%s' % cuda_visible_devices,
+            '-v', '/mnt:/mnt',
+            '-v', '/raid/tmp:/dask-local-directory',
+            ] + [a for v in args.volume for a in ['-v', v]] + [
+            ] + [a for v in calculated_volumes for a in ['-v', v]] + [
+            '--network=host',
+            '--name', container_name,
+            args.docker_image,
+            'dask-cuda-worker',
+            '--nthreads', '5',
+            '--memory-limit', '%d' % int(args.memory_limit_gib * 1024 ** 3),
+            '--device-memory-limit', '%d' % int(args.device_memory_limit_gib * 1024 ** 3),
+            '--local-directory', '/dask-local-directory',
+            '%s:8786' % args.scheduler_host,
+        ]
+        print(' '.join(cmd))
+        subprocess.run(cmd, check=True)
 
 
 def start_notebook(args):
@@ -107,33 +142,6 @@ def start_notebook(args):
         '--ip=0.0.0.0',
         '--no-browser',
         '--NotebookApp.token=""',
-    ]
-    print(' '.join(cmd))
-    subprocess.run(cmd, check=True)
-
-
-def start_worker(args, host):
-    container_name = args.container_name + '-worker'
-    cmd = [
-        'ssh',
-        '-p', '22',
-        '%s@%s' % (args.user, host),
-        'nvidia-docker',
-        'run',
-        '--rm',
-        '--detach',
-        '-v', '/mnt:/mnt',
-        '-v', '/raid/tmp:/dask-local-directory',
-        ] + [a for v in args.volume for a in ['-v', v]] + [
-        '--network=host',
-        '--name', container_name,
-        args.docker_image,
-        'dask-cuda-worker',
-        '--nthreads', '5',
-        '--memory-limit', '%d' % int(args.memory_limit_gib * 1024 ** 3),
-        '--device-memory-limit', '%d' % int(args.device_memory_limit_gib * 1024 ** 3),
-        '--local-directory', '/dask-local-directory',
-        '%s:8786' % args.scheduler_host,
     ]
     print(' '.join(cmd))
     subprocess.run(cmd, check=True)
@@ -184,6 +192,8 @@ def main():
                         help='Docker image tag.')
     parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to run Dask services.')
     parser.add_argument('--memory_limit_gib', type=float, default=64.0)
+    parser.add_argument('--num_containers_per_host', type=int, default=1)
+    parser.add_argument('--num_gpus_per_host', type=int, default=16)
     parser.add_argument('--num_worker_hosts', type=int, default=0, help='Number of hosts to start Dask workers on (0=all)')
     parser.add_argument('--scheduler_host', default='')
     parser.add_argument('--start', type=parse_bool, default=True)
@@ -191,6 +201,7 @@ def main():
     parser.add_argument('--user', action='store',
                         default='root', help='SSH user')
     parser.add_argument('--volume', '-v', action='append', default=[])
+    parser.add_argument('--volume_template', action='append', default=[])
     parser.add_argument('--wait', type=parse_bool, default=False)
     args = parser.parse_args()
 
