@@ -17,4 +17,4 @@ size=458GB
 bs=1024KiB
 direct=1
 sync=0
-rate_iops=596
+#rate_iops=596
