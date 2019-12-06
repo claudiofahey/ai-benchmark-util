@@ -37,3 +37,5 @@ extraScrapeConfigs: |
         target_label: instance
       - target_label: __address__
         replacement: prometheus-snmp-exporter:9116  # The SNMP exporter's Service name and port.
+server:
+  retention: 365d
