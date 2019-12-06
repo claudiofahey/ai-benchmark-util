@@ -1,3 +1,4 @@
+# This file can be used when running rapids_benchmark_driver.py without P3 Test Driver.
 dask_init_wait_sec: 30.0
 docker_image: claudiofahey/rapidsai:0.10-cuda10.0-runtime-ubuntu18.04-custom
 flush_compute: True
@@ -7,10 +8,7 @@ host:
   - 10.200.11.13
   - 10.200.11.11
 input_file:
-#  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/part.1\\*.orc"
-#  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/part.22\\*.orc"
   - "/mnt/isilon1/data/mortgage/perf-from-spark-3.00x-48p-2048MiB-snappy.orc.1/\\*.orc"
-#  - "/mnt/isilon1/data/mortgage/perf-snappy.orc/\\*.orc"
 isilon_host: 172.28.10.151
 keep_dask_running: True
 num_workers: 48

@@ -47,6 +47,7 @@ def run_benchmark(args):
     client.wait_for_workers(args.num_workers)
 
     if args.single_batch:
+        # This branch is obsolete.
         input_files = [f for p in args.input_file for f in sorted(glob.glob(p))]
         logging.info('len(input_files)=%d' % len(input_files))
         logging.debug('input_files=%s' % str(input_files))

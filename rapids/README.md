@@ -5,16 +5,31 @@ It is designed to run on a multiple DGX-2 servers with a NAS such as Isilon.
 
 ## Benchmark Procedure
 
+### Disk Mounts
+
+This document and associated scripts assume that each compute server mounts Isilon on
+the mount points `/mnt/isilon`, `/mnt/isilon1`, `/mnt/isilon2`, ..., `/mnt/isilon16`.
+The script [mount_isilon.py](../mount_isilon.py) can be used to perform the necessary mounts.
+
+Each DGX-2 server should have a local disk mounted on `/raid`.
+
+### Download this Repository
+
+```
+dgxuser@dgx2-1:~$
+cd /mnt/isilon/data
+git clone https://github.com/claudiofahey/ai-benchmark-util
+cd ai-benchmark-util/rapids
+```
+
 ### Download Mortgage Data
 
 ```
 dgxuser@dgx2-1:~$
+
 mkdir -p /mnt/isilon/data/mortgage
 cd /mnt/isilon/data/mortgage
-
-# Use below for the full benchmark with 17 years of data.
 wget http://rapidsai-data.s3-website.us-east-2.amazonaws.com/notebook-mortgage-data/mortgage_2000-2016.tgz
-
 tar -xzvf mortgage_2000-2016.tgz
 
 ls -lhR
@@ -38,18 +53,27 @@ This uses Apache Spark to build ORC datasets using a variety of parameters.
 The output will be on the NAS.
 
 ```
-dgxuser@dgx2-1:~$
-cd rapids
+dgxuser@dgx2-1:/mnt/isilon/data/ai-benchmark-util/rapids$
 ./start_spark_notebook.sh
 ```
 
 Open your browser to Jupyter Notebook at http://localhost:8886.
 
-Open the notebook [mortgage_etl_create_orc_spark_1.ipynb](mortgage_etl_create_orc_spark_1.ipynb).
-
+Open the notebook [mortgage_etl_create_orc_spark_4.ipynb](mortgage_etl_create_orc_spark_4.ipynb).
 Click Run -> Run All Cells.
 
-### Copy datasets to local drives on DGX-2 servers
+Open the notebook [mortgage_etl_copy_files_1.ipynb](mortgage_etl_copy_files_1.ipynb).
+Click Run -> Run All Cells.
+
+### Copy dataset to local drives on DGX-2 servers
+
+Create a file named `hosts` containing one host name (or IP address) per DGX-2 server. For example:
+
+```
+dgx2-1
+dgx2-2
+dgx2-3
+```
 
 ```
 ./copy_data_to_local.sh
@@ -58,21 +82,19 @@ Click Run -> Run All Cells.
 ### Configure Benchmark
 
 ```
-dgxuser@dgx2-1:~$
-cd rapids
+dgxuser@dgx2-1:/mnt/isilon/data/ai-benchmark-util/rapids$
 sudo apt install python3-pip
 pip3 install setuptools wheel
 pip3 install --requirement requirements.txt
 ```
 
 Edit the files:
-- build_docker_nightly.sh
 - p3_test_driver.config.yaml
 - testgen.py
 
 ### Build Docker Containers (Optional)
 
-We use a customized container based on the nightly RAPIDS container from 2019-11-22.
+We use a customized container based on the nightly RAPIDS container.
 It contains additional Python libraries and disables the automatic execution of Jupyter.
 Skip this section if you do not need to further customize the image.
 
@@ -83,8 +105,7 @@ Skip this section if you do not need to further customize the image.
 ### Run Benchmark using P3 Test Driver
 
 ```
-dgxuser@dgx2-1:~$
-cd rapids
+dgxuser@dgx2-1:/mnt/isilon/data/ai-benchmark-util/rapids$
 ./testgen.py | p3_test_driver -t - -c p3_test_driver.config.yaml
 ```
 
@@ -97,3 +118,5 @@ Click Run -> Run All Cells.
 
 - https://rapids.ai/
 - https://docs.rapids.ai/datasets/mortgage-data
+
+Copyright (c) Dell Inc., or its subsidiaries. All Rights Reserved.
