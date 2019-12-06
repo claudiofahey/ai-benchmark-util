@@ -9,7 +9,7 @@ mkdir parabricks-installer
 
 tar -xvzf parabricks.tar.gz -C parabricks-installer
 
-./parabricks/installer.py \
+./parabricks-installer/parabricks/installer.py \
 --install-location ./parabricks-installed \
 --container singularity \
 --force
