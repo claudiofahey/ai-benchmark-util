@@ -35,13 +35,13 @@
       "legend": {
         "alignAsTable": true,
         "avg": false,
-        "current": false,
+        "current": true,
         "hideZero": true,
-        "max": true,
+        "max": false,
         "min": false,
         "rightSide": true,
         "show": true,
-        "sort": "max",
+        "sort": "current",
         "sortDesc": true,
         "total": true,
         "values": true
@@ -129,13 +129,13 @@
       "legend": {
         "alignAsTable": true,
         "avg": false,
-        "current": false,
+        "current": true,
         "hideZero": true,
-        "max": true,
+        "max": false,
         "min": false,
         "rightSide": true,
         "show": true,
-        "sort": "max",
+        "sort": "current",
         "sortDesc": true,
         "total": true,
         "values": true
@@ -215,7 +215,7 @@
     "list": []
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -246,5 +246,5 @@
   "timezone": "",
   "title": "Network",
   "uid": "0CKJMhoWz",
-  "version": 5
+  "version": 7
 }

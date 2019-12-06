@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 5,
   "links": [],
   "panels": [
     {
@@ -26,30 +26,29 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 0
       },
-      "hideTimeOverride": false,
-      "id": 9,
+      "id": 3,
       "legend": {
+        "alignAsTable": true,
         "avg": false,
-        "current": false,
+        "current": true,
         "max": false,
         "min": false,
-        "show": false,
+        "rightSide": true,
+        "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
-      "links": [],
       "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
-      "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -60,11 +59,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg(nvidia_gpu_duty_cycle) by (instance)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "",
+          "expr": "nvidia_gpu_duty_cycle",
+          "legendFormat": "{{ instance }} {{ minor_number }}",
           "refId": "A"
         }
       ],
@@ -72,10 +68,10 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "NVIDIA GPU usage per host",
+      "title": "GPU Duty Cycle",
       "tooltip": {
         "shared": true,
-        "sort": 2,
+        "sort": 0,
         "value_type": "individual"
       },
       "type": "graph",
@@ -88,7 +84,6 @@
       },
       "yaxes": [
         {
-          "decimals": null,
           "format": "percent",
           "label": null,
           "logBase": 1,
@@ -98,7 +93,7 @@
         },
         {
           "format": "short",
-          "label": "",
+          "label": null,
           "logBase": 1,
           "max": null,
           "min": null,
@@ -123,108 +118,16 @@
         "x": 12,
         "y": 0
       },
-      "id": 8,
-      "legend": {
-        "alignAsTable": true,
-        "avg": false,
-        "current": true,
-        "hideZero": true,
-        "max": true,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "sort": "total",
-        "sortDesc": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "paceLength": 10,
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "irate(node_network_receive_bytes_total{device!~\"veth.*|lo\"}[5m])",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "{{group}} {{instance}} {{device}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Network RX per host",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "Bps",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 0,
-        "y": 6
-      },
       "hideTimeOverride": false,
       "id": 5,
       "legend": {
+        "alignAsTable": false,
         "avg": false,
         "current": false,
         "max": false,
         "min": false,
-        "show": false,
+        "rightSide": true,
+        "show": true,
         "total": false,
         "values": false
       },
@@ -246,11 +149,11 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "1 - (avg by (group,instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])))",
+          "expr": "1.00 - (avg by (group,instance) (irate(node_cpu_seconds_total{mode=\"idle\",group=~\"dgx|mgmt\"}[5m])))",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "{{ group }} {{ instance }}",
+          "legendFormat": "{{ instance }}",
           "refId": "A"
         }
       ],
@@ -311,13 +214,18 @@
       },
       "id": 7,
       "legend": {
+        "alignAsTable": true,
         "avg": false,
-        "current": false,
+        "current": true,
+        "hideZero": true,
         "max": false,
         "min": false,
-        "show": false,
+        "rightSide": true,
+        "show": true,
+        "sort": "total",
+        "sortDesc": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -337,10 +245,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(node_network_transmit_bytes_total{device!~\"veth.*|lo\"}[5m])",
+          "expr": "irate(node_network_receive_bytes_total{device=~\"lo|enp53s0\"}[5m])",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "{{group}} {{instance}} {{device}}",
+          "legendFormat": "{{ instance }} {{ device }}",
           "refId": "A"
         }
       ],
@@ -348,7 +256,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Network TX per host",
+      "title": "Network RX per host",
       "tooltip": {
         "shared": true,
         "sort": 2,
@@ -393,30 +301,32 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 12,
         "x": 0,
-        "y": 12
+        "y": 8
       },
-      "hideTimeOverride": false,
       "id": 2,
       "legend": {
+        "alignAsTable": true,
         "avg": false,
-        "current": false,
+        "current": true,
+        "hideZero": true,
         "max": false,
         "min": false,
-        "show": false,
+        "rightSide": true,
+        "show": true,
+        "sort": null,
+        "sortDesc": null,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
-      "links": [],
       "nullPointMode": "null",
       "options": {
         "dataLinks": []
       },
-      "paceLength": 10,
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -427,11 +337,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(irate(node_disk_written_bytes_total[5m])) by (group,instance)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "{{group}} {{instance}}",
+          "expr": "nvidia_gpu_memory_used_bytes",
+          "legendFormat": "{{ instance }} {{ minor_number }}",
           "refId": "A"
         }
       ],
@@ -439,10 +346,10 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Disk write throughput per host",
+      "title": "GPU Memory Used",
       "tooltip": {
         "shared": true,
-        "sort": 2,
+        "sort": 0,
         "value_type": "individual"
       },
       "type": "graph",
@@ -455,8 +362,7 @@
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "Bps",
+          "format": "bytes",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -465,99 +371,7 @@
         },
         {
           "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 12
-      },
-      "hideTimeOverride": false,
-      "id": 3,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": false,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "paceLength": 10,
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "sum(irate(node_disk_read_bytes_total[5m])) by (group,instance)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "{{group}} {{instance}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Disk read throughput per host",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "Bps",
           "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": "",
           "logBase": 1,
           "max": null,
           "min": null,
@@ -570,7 +384,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "schemaVersion": 19,
   "style": "dark",
   "tags": [],
@@ -593,21 +407,10 @@
       "1h",
       "2h",
       "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
     ]
   },
   "timezone": "",
-  "title": "Host Metrics",
-  "uid": "KnLfZudZk",
-  "version": 5
+  "title": "RAPIDS Dashboard",
+  "uid": "dGsBDdbZk",
+  "version": 7
 }
