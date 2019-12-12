@@ -102,7 +102,7 @@ def process_sample(args):
         temp_dir = os.path.join(args.temp_dir, sample_id)
         rec['input_dir'] = input_dir
         rec['output_dir'] = output_dir
-        rec['temp_dir'] = output_dir
+        rec['temp_dir'] = temp_dir
 
         logging.debug('input_dir=%s' % input_dir)
         logging.debug('output_dir=%s' % output_dir)
