@@ -5,4 +5,9 @@ docker run \
 -e JUPYTER_ENABLE_LAB=yes \
 -v "$PWD":/home/jovyan/work \
 -v /mnt:/home/jovyan/mnt \
-jupyter/scipy-notebook:1386e2046833
+--name jupyter-notebook \
+jupyter/scipy-notebook:1386e2046833 \
+jupyter-lab \
+--ip=0.0.0.0 \
+--no-browser \
+--NotebookApp.token=""
