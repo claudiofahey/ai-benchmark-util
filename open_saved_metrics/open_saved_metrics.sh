@@ -12,24 +12,21 @@ set -e
 prometheus_tgz=$(readlink -f "$1")
 echo Loading metrics from: ${prometheus_tgz}
 export PROMETHEUS_DATA_DIR="/tmp/prometheus-data"
-docker-compose -p open_saved_metrics -f $(dirname $0)/docker-compose.yml rm --stop --force prometheus grafana
-
-#
-# Prometheus
-#
+echo PROMETHEUS_DATA_DIR: ${PROMETHEUS_DATA_DIR}
 
 ls -lh ${prometheus_tgz}
 sudo rm -rf "${PROMETHEUS_DATA_DIR}"
 mkdir "${PROMETHEUS_DATA_DIR}"
 tar -xzvf "${prometheus_tgz}" --strip-components=1 -C "${PROMETHEUS_DATA_DIR}"
-chmod -R a+rwX "${PROMETHEUS_DATA_DIR}"
-docker-compose -p open_saved_metrics -f $(dirname $0)/docker-compose.yml up -d prometheus
-
-#
-# Grafana
-#
-
-docker-compose -p open_saved_metrics -f $(dirname $0)/docker-compose.yml up -d
+sudo chmod -R a+rwX "${PROMETHEUS_DATA_DIR}"
+docker run \
+-d \
+--rm \
+--name prometheus \
+-p 9094:9090 \
+-v ${PROMETHEUS_DATA_DIR}:/prometheus \
+prom/prometheus:v2.11.1 \
+--storage.tsdb.retention.time 10000d
 
 echo
 echo Prometheus URL: http://localhost:9094
