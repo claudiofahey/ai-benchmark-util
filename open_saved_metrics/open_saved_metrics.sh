@@ -19,16 +19,20 @@ sudo rm -rf "${PROMETHEUS_DATA_DIR}"
 mkdir "${PROMETHEUS_DATA_DIR}"
 tar -xzvf "${prometheus_tgz}" --strip-components=1 -C "${PROMETHEUS_DATA_DIR}"
 sudo chmod -R a+rwX "${PROMETHEUS_DATA_DIR}"
-docker run \
--d \
---rm \
---name prometheus \
--p 9094:9090 \
--v ${PROMETHEUS_DATA_DIR}:/prometheus \
-prom/prometheus:v2.11.1 \
---storage.tsdb.retention.time 10000d
 
 echo
 echo Prometheus URL: http://localhost:9094
 echo Grafana URL: http://localhost:3000
 echo
+
+docker run \
+--rm \
+--name prometheus \
+-p 9094:9090 \
+-v ${PROMETHEUS_DATA_DIR}:/prometheus \
+prom/prometheus:v2.11.1 \
+--config.file=/etc/prometheus/prometheus.yml \
+--storage.tsdb.path=/prometheus \
+--web.console.libraries=/usr/share/prometheus/console_libraries \
+--web.console.templates=/usr/share/prometheus/consoles \
+--storage.tsdb.retention.time 10000d
