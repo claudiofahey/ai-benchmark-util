@@ -14,20 +14,20 @@ def add_test():
 
     if num_copies == 1 and image_resize_factor == 1.0:
         data_dir_suffix = ''
-    elif num_copies == 150 and image_resize_factor == 1.0:
-        data_dir_suffix = '-150x'
+    elif num_copies > 1 and image_resize_factor == 1.0:
+        data_dir_suffix = '-%dx' % num_copies
     elif num_copies == 1 and image_resize_factor == 3.0:
         data_dir_suffix = '1729'
     else:
         raise Exception()
 
-    data_dir_template = '/mnt/isilon%%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
+    data_dir_template = '/mnt/' + storage_type + '%%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
     flush = not cached
 
     t = dict(
         test='simple',
         record_as_test='tensorflow_cnn_benchmark',
-        max_test_attempts=2,
+        max_test_attempts=1,
         pre_commands=[
             dict(key='tensorflow_benchmark_git_hash',
                  command_template='cd ../tensorflow-benchmarks && git rev-parse --short HEAD'),
@@ -39,6 +39,7 @@ def add_test():
         command_template=[
             'docker',
             'exec',
+            '-e', 'PYTHONUNBUFFERED=1',
             'tf',
             './run_benchmark.py',
             '--batch_group_size', '%d' % batch_group_size,
@@ -51,6 +52,7 @@ def add_test():
             '--fp16', '%d' % fp16,
             '--isilon_host', '%(isilon_host)s',
             '--model', model,
+            '--mpi', '%d' % mpi,
             '--noop', '%d' % noop,
             '--np', '%d' % np,
             '--npernode', '%d' % npernode,
@@ -72,6 +74,7 @@ def add_test():
         image_resize_factor=image_resize_factor,
         isilon_flush=flush,
         model=model,
+        mpi=mpi,
         np=np,
         npernode=npernode,
         num_batches=num_batches,
@@ -86,32 +89,33 @@ def add_test():
 
 test_list = []
 
-num_copies_uncached = 150
+num_copies_uncached = 13
 image_resize_factor = 1.0
 fp16 = True
 noop = False
-storage_type = 'isilon'
 
 # Full test suite
 for repeat in range(3):
-    for cached in [False, True]:
-        for model in ['resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4']:
-            for batch_group_size in [10]:
-                if model == 'vgg16':
-                    batch_sizes = [192]
-                else:
-                    batch_sizes = [256]
-                for batch_size in batch_sizes:
-                    for data_dir_template_count in [1 if cached else 16]:
-                        for datasets_prefetch_buffer_size in [40]:
-                            for datasets_num_private_threads in [4]:
-                                for num_batches in [1000]:
-                                    for num_hosts in [3, 2, 1]:
-                                        for npernode in [16]:
-                                            np = num_hosts * npernode
-                                            for num_intra_threads in [1]:
-                                                for num_inter_threads in [40]:
-                                                    add_test()
+    for storage_type in ['local']:
+        for cached in [True] if storage_type=='local' else [False,True]:
+            for model in ['resnet50']:  #'resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4'
+                for batch_group_size in [10]:
+                    if model == 'vgg16':
+                        batch_sizes = [192]
+                    else:
+                        batch_sizes = [192]
+                    for batch_size in batch_sizes:
+                        for data_dir_template_count in [1 if cached else 1]:
+                            for datasets_prefetch_buffer_size in [40]:
+                                for datasets_num_private_threads in [4]:
+                                    for num_batches in [1000]:
+                                        for num_hosts in [1]:
+                                            for npernode in [1]:
+                                                np = num_hosts * npernode
+                                                for num_intra_threads in [1]:
+                                                    for num_inter_threads in [40]:
+                                                        for mpi in [False]:
+                                                            add_test()
 
 
 print(json.dumps(test_list, sort_keys=True, indent=4, ensure_ascii=False))

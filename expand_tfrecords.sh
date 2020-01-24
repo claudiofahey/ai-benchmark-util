@@ -1,16 +1,14 @@
 #!/bin/bash
 
-num_copies=150
+num_copies=13
 out_dir="/imagenet-scratch/tfrecords-${num_copies}x"
 
 mkdir -p "${out_dir}"
 
 time mpirun \
 --allow-run-as-root \
--np 48 \
--H dgx2-1:16 \
--H dgx2-2:16 \
--H dgx2-3:16 \
+-np 16 \
+-H localhost:32 \
 -bind-to none \
 --map-by node \
 -mca plm_rsh_agent ssh \

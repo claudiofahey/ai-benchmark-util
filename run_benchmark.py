@@ -69,7 +69,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
             'ssh',
             '-p', '22',
             '%s@%s' % (args.isilon_user, args.isilon_host),
-            'isi_for_array', 'isi_flush',
+            'isi_for_array', 'isi_flush', '-123k',
         ]
         print(' '.join(cmd))
         subprocess.run(cmd, check=True)

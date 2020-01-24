@@ -9,5 +9,4 @@ docker run \
 jupyter/scipy-notebook:1386e2046833 \
 jupyter-lab \
 --ip=0.0.0.0 \
---no-browser \
---NotebookApp.token=""
+--no-browser
