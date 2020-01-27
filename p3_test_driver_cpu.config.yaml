@@ -1,0 +1,7 @@
+isilon_host: 10.246.157.22
+isilon_node_pool_name: h40_30tb_3.2tb-ssd_128gb
+isilon_user: root
+_isilon_password: "***REMOVED***"
+result_filename: data/p3_test_driver/results/%(test)s_%(model)s_%(device)s_np%(np)d_%(timestamp)s_%(test_uuid)s.json.bz2
+status_html: data/p3_test_driver/status/p3_test_driver_cpu.html
+test_driver_log_filename: data/p3_test_driver/logs/p3_test_driver_cpu.log

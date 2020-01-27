@@ -1,6 +1,6 @@
 benchmarks_dir: /mnt/home/faheyc/deeplearning/tensorflow-benchmarks
-docker_image: claudiofahey/tensorflow:19.09-py3-custom
-gpus: all
+docker_image: claudiofahey/intel-optimized-tensorflow:1.14.0-py3-custom
+gpus: ""
 host:
   - localhost
 scripts_dir: /mnt/home/faheyc/deeplearning/ai-benchmark-util

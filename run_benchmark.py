@@ -136,10 +136,10 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--num_batches=%d' % args.num_batches,
         '--nodistortions',
         '--num_gpus=1',
-        '--device=gpu',
-        '--force_gpu_compatible=True',
+        '--device=%s' % args.device,
+        '--force_gpu_compatible=%s' % str(args.force_gpu_compatible),
         '--fuse_decode_and_crop=%s' % args.fuse_decode_and_crop,
-        '--data_format=NCHW',
+        '--data_format=%s' % args.data_format,
         '--use_fp16=%s' % str(args.fp16),
         '--use_tf_layers=%s' % str(args.fp16),
         '--data_name=imagenet',
@@ -179,12 +179,15 @@ def main():
     parser.add('--data_dir', action='append', default=[])
     parser.add('--data_dir_template')
     parser.add('--data_dir_template_count', type=int, default=0)
+    parser.add('--data_format', default='NCHW')
     parser.add('--datasets_prefetch_buffer_size', type=int, default=20)
     parser.add('--datasets_num_private_threads', type=int, default=2)
+    parser.add('--device', default='gpu')
     parser.add('--eval', type=parse_bool, default=False,
                help='Perform inference instead of training.')
     parser.add('--flush', type=parse_bool, default=False, help='Flush caches')
     parser.add('--fp16', type=parse_bool, default=True,  help='Use FP16, otherwise use FP32')
+    parser.add('--force_gpu_compatible', type=parse_bool, default=True)
     parser.add('--forward_only', type=parse_bool, default=False,
                help='Perform inference instead of training.')
     parser.add('--fuse_decode_and_crop', type=parse_bool, default=True)

@@ -27,16 +27,17 @@ def start_container(args, host):
     subprocess.run(cmd, check=False)
 
     if args.start:
-        cmd = [
-            'ssh',
-            '-p', '22',
-            '%s@%s' % (args.user, host),
-            'docker',
-            'pull',
-            args.docker_image,
-        ]
-        print(' '.join(cmd))
-        subprocess.run(cmd, check=True)
+        if args.pull:
+            cmd = [
+                'ssh',
+                '-p', '22',
+                '%s@%s' % (args.user, host),
+                'docker',
+                'pull',
+                args.docker_image,
+            ]
+            print(' '.join(cmd))
+            subprocess.run(cmd, check=True)
 
         cmd = [
             'ssh',
@@ -47,7 +48,7 @@ def start_container(args, host):
             '--rm',
             '--detach',
             '--privileged',
-            '--gpus', 'all',
+            ] + (['--gpus', args.gpus] if args.gpus else []) + [
             '-v', '%s:/scripts' % args.scripts_dir,
             '-v', '%s:/tensorflow-benchmarks' % args.benchmarks_dir,
             '-v', '%s:/imagenet-data:ro' % args.imagenet_data_dir,
@@ -76,6 +77,7 @@ def main():
         config_file_parser_class=configargparse.YAMLConfigFileParser,
         default_config_files=['start_containers.yaml'],
     )
+    parser.add_argument('--config', '-c', required=False, is_config_file=True, help='config file path')
     parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add_argument('--scripts_dir', action='store',
                         default='/mnt/isilon/data/tf-bench-util',
@@ -83,6 +85,7 @@ def main():
     parser.add_argument('--benchmarks_dir', action='store',
                         default='/mnt/isilon/data/tensorflow-benchmarks',
                         help='Fully qualified path to the TensorFlow Benchmarks directory.')
+    parser.add_argument('--gpus', action='store', default='')
     parser.add_argument('--imagenet_data_dir', action='store',
                         default='/mnt/isilon/data/imagenet-data',
                         help='Fully qualified path to the directory containing the original ImageNet data.')
@@ -97,7 +100,10 @@ def main():
     parser.add_argument('--user', action='store',
                         default='root',
                         help='SSH user')
-    parser.add_argument('--nostart', dest='start', action='store_false', 
+    parser.add_argument('--nopull', dest='pull', action='store_false',
+                        default=True,
+                        help='Pull image')
+    parser.add_argument('--nostart', dest='start', action='store_false',
                         default=True,
                         help='Start containers')
     args = parser.parse_args()
