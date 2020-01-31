@@ -60,6 +60,7 @@ def add_test():
             '--num_hosts', '%d' % num_hosts,
             '--num_intra_threads', '%d' % num_intra_threads,
             '--num_inter_threads', '%d' % num_inter_threads,
+            '--use_tf_layers', '%d' % use_tf_layers,
         ],
         batch_group_size=batch_group_size,
         batch_size=batch_size,
@@ -71,7 +72,6 @@ def add_test():
         datasets_num_private_threads=datasets_num_private_threads,
         flush=flush,
         fp16=fp16,
-        use_tf_layers=not fp16,
         image_resize_factor=image_resize_factor,
         isilon_flush=flush,
         model=model,
@@ -84,6 +84,7 @@ def add_test():
         num_intra_threads=num_intra_threads,
         num_inter_threads=num_inter_threads,
         storage_type=storage_type,
+        use_tf_layers=use_tf_layers,
     )
     test_list.append(t)
 
@@ -93,6 +94,7 @@ test_list = []
 num_copies_uncached = 13
 image_resize_factor = 1.0
 fp16 = True
+use_tf_layers = True
 noop = False
 
 # Full test suite

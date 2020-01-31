@@ -141,7 +141,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--fuse_decode_and_crop=%s' % args.fuse_decode_and_crop,
         '--data_format=%s' % args.data_format,
         '--use_fp16=%s' % str(args.fp16),
-        '--use_tf_layers=%s' % str(not args.fp16),
+        '--use_tf_layers=%s' % str(args.use_tf_layers),
         '--data_name=imagenet',
         '--use_datasets=True',
         '--num_intra_threads=%d' % args.num_intra_threads,
@@ -208,6 +208,7 @@ def main():
     parser.add('--repeat', type=int, default=1)
     parser.add('--run_id')
     parser.add('--train_dir', default='/imagenet-scratch/train_dir')
+    parser.add('--use_tf_layers', type=parse_bool, default=True)
     args, unknown_args = parser.parse_known_args()
 
     os.chdir(script_dir)
