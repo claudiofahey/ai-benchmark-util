@@ -37,7 +37,7 @@ OUTPUT_DIRECTORY="${SCRATCH_DIR}/tfrecords2"
 [ -f "${IMAGENET_METADATA_FILE}" ] || { echo "File ${IMAGENET_METADATA_FILE} not found" ; exit 1 ;}
 
 # Validate source files.
-#(cd "${DATA_DIR}" && md5sum -c ilsvrc2012.md5)
+(cd "${DATA_DIR}" && md5sum -c ilsvrc2012.md5)
 
 # Extract all images from the ImageNet 2012 validation dataset.
 mkdir -p "${VALIDATION_DIRECTORY}"
