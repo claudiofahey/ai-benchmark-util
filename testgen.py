@@ -71,6 +71,7 @@ def add_test():
         datasets_num_private_threads=datasets_num_private_threads,
         flush=flush,
         fp16=fp16,
+        use_tf_layers=not fp16,
         image_resize_factor=image_resize_factor,
         isilon_flush=flush,
         model=model,
@@ -96,9 +97,9 @@ noop = False
 
 # Full test suite
 for repeat in range(3):
-    for storage_type in ['local']:
+    for storage_type in ['local','isilon']:
         for cached in [True] if storage_type=='local' else [False,True]:
-            for model in ['resnet50']:  #'resnet50', 'vgg16', 'resnet152', 'inception3', 'inception4'
+            for model in ['resnet50','vgg16','resnet152','inception3','inception4']:
                 for batch_group_size in [10]:
                     if model == 'vgg16':
                         batch_sizes = [192]
@@ -110,11 +111,11 @@ for repeat in range(3):
                                 for datasets_num_private_threads in [4]:
                                     for num_batches in [1000]:
                                         for num_hosts in [1]:
-                                            for npernode in [1]:
+                                            for npernode in [2,1]:
                                                 np = num_hosts * npernode
                                                 for num_intra_threads in [1]:
                                                     for num_inter_threads in [40]:
-                                                        for mpi in [False]:
+                                                        for mpi in [True]:
                                                             add_test()
 
 

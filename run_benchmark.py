@@ -141,7 +141,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         '--fuse_decode_and_crop=%s' % args.fuse_decode_and_crop,
         '--data_format=%s' % args.data_format,
         '--use_fp16=%s' % str(args.fp16),
-        '--use_tf_layers=%s' % str(args.fp16),
+        '--use_tf_layers=%s' % str(not args.fp16),
         '--data_name=imagenet',
         '--use_datasets=True',
         '--num_intra_threads=%d' % args.num_intra_threads,
