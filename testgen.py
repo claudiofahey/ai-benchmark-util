@@ -83,6 +83,7 @@ def add_test():
         num_hosts=num_hosts,
         num_intra_threads=num_intra_threads,
         num_inter_threads=num_inter_threads,
+        nvlink=False,
         storage_type=storage_type,
         use_tf_layers=use_tf_layers,
     )
@@ -99,7 +100,7 @@ noop = False
 
 # Full test suite
 for repeat in range(3):
-    for storage_type in ['local','isilon']:
+    for storage_type in ['isilon']:     # 'isilon','local'
         for cached in [True] if storage_type=='local' else [False,True]:
             for model in ['resnet50','vgg16','resnet152','inception3','inception4']:
                 for batch_group_size in [10]:
