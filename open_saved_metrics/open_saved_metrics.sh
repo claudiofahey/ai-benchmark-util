@@ -10,8 +10,9 @@ set -e
 : ${1?"Usage: $0 PROMETHEUS_DATA_TGZ"}
 
 prometheus_tgz=$(readlink -f "$1")
+port=${port:-9094}
 echo Loading metrics from: ${prometheus_tgz}
-export PROMETHEUS_DATA_DIR="/tmp/prometheus-data"
+export PROMETHEUS_DATA_DIR="/tmp/prometheus-data-${port}"
 echo PROMETHEUS_DATA_DIR: ${PROMETHEUS_DATA_DIR}
 
 ls -lh ${prometheus_tgz}
@@ -21,14 +22,15 @@ tar -xzvf "${prometheus_tgz}" --strip-components=1 -C "${PROMETHEUS_DATA_DIR}"
 sudo chmod -R a+rwX "${PROMETHEUS_DATA_DIR}"
 
 echo
-echo Prometheus URL: http://localhost:9094
+echo Prometheus URL: http://localhost:${port}
 echo Grafana URL: http://localhost:3000
 echo
 
 docker run \
+-d \
 --rm \
---name prometheus \
--p 9094:9090 \
+--name prometheus-${port} \
+-p ${port}:9090 \
 -v ${PROMETHEUS_DATA_DIR}:/prometheus \
 prom/prometheus:v2.11.1 \
 --config.file=/etc/prometheus/prometheus.yml \
