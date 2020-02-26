@@ -92,7 +92,7 @@ def add_test():
 
 test_list = []
 
-num_copies_uncached = 13
+num_copies_uncached = 7
 image_resize_factor = 1.0
 fp16 = True
 use_tf_layers = True
@@ -100,21 +100,17 @@ noop = False
 
 # Full test suite
 for repeat in range(3):
-    for storage_type in ['isilon']:     # 'isilon','local'
-        for cached in [True] if storage_type=='local' else [False,True]:
-            for model in ['resnet50','vgg16','resnet152','inception3','inception4']:
+    for storage_type in ['filestore','isilon']:     # 'isilon','filestore'
+        for cached in [False]:
+            for model in ['resnet50','vgg16','resnet152','inception3','inception4']:  # 'vgg16','resnet152','inception3','inception4'
                 for batch_group_size in [10]:
-                    if model == 'vgg16':
-                        batch_sizes = [192]
-                    else:
-                        batch_sizes = [192]
-                    for batch_size in batch_sizes:
-                        for data_dir_template_count in [1 if cached else 1]:
+                    for batch_size in [48,64]:
+                        for data_dir_template_count in [1 if storage_type=='filestore' else 4]:
                             for datasets_prefetch_buffer_size in [40]:
                                 for datasets_num_private_threads in [4]:
-                                    for num_batches in [1000]:
-                                        for num_hosts in [1]:
-                                            for npernode in [2,1]:
+                                    for num_batches in [500]:
+                                        for num_hosts in [2,1]:
+                                            for npernode in [4]:
                                                 np = num_hosts * npernode
                                                 for num_intra_threads in [1]:
                                                     for num_inter_threads in [40]:

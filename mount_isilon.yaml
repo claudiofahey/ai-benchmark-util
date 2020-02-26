@@ -1,8 +1,15 @@
+export: /ifs/data/testing/deep-learning
 host:
-  - dgx2-1
-  - dgx2-2
-  - dgx2-3
+  - dl-admin1
+#  - dl-worker1
+#  - dl-worker2
+#  - dl-worker3
+#  - dl-worker4
+#  - dl-worker5
+#  - dl-worker6
+  - dl-worker9.us-east4-b.c.isilon-hdfs-project.internal
+  - dl-worker10.us-east4-b.c.isilon-hdfs-project.internal
 isilon_ip:
-  - 10.200.10.151
-isilon_ip_count: 16
+  - 10.3.0.5
+isilon_ip_count: 4
 skip_hosts: 1

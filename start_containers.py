@@ -86,7 +86,7 @@ def main():
     parser.add_argument('--benchmarks_dir', action='store',
                         default='/mnt/isilon/data/tensorflow-benchmarks',
                         help='Fully qualified path to the TensorFlow Benchmarks directory.')
-    parser.add_argument('--gpus', action='store', default='')
+    parser.add_argument('--gpus', action='store', default='all')
     parser.add_argument('--imagenet_data_dir', action='store',
                         default='/mnt/isilon/data/imagenet-data',
                         help='Fully qualified path to the directory containing the original ImageNet data.')

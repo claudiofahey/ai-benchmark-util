@@ -1,6 +1,7 @@
-benchmarks_dir: /mnt/home/faheyc/deeplearning/tensorflow-benchmarks
+#benchmarks_dir: /mnt/home/faheyc/deeplearning/tensorflow-benchmarks
 docker_image: claudiofahey/tensorflow:19.09-py3-custom
-gpus: all
+#gpus: all
 host:
-  - localhost
-scripts_dir: /mnt/home/faheyc/deeplearning/ai-benchmark-util
+  - dl-worker9.us-east4-b.c.isilon-hdfs-project.internal
+  - dl-worker10.us-east4-b.c.isilon-hdfs-project.internal
+#scripts_dir: /mnt/home/faheyc/deeplearning/ai-benchmark-util

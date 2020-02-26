@@ -1,3 +1,4 @@
 host:
-  - localhost
+  - dl-worker9.us-east4-b.c.isilon-hdfs-project.internal
+  - dl-worker10.us-east4-b.c.isilon-hdfs-project.internal
 isilon_host: 10.246.157.22
