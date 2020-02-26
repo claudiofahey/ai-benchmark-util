@@ -25,6 +25,7 @@ def main():
         config_file_parser_class=configargparse.YAMLConfigFileParser,
         default_config_files=['mount_isilon.yaml'],
     )
+    parser.add_argument('--export', default='/ifs')
     parser.add_argument('--host', '-H', action='append', required=True,
                         help='List of hosts on which to run mount commands.')
     parser.add_argument('--isilon_ip', '-i', action='append', required=True,
@@ -38,6 +39,7 @@ def main():
                         help='Unmount existing but do not mount.')
     parser.add_argument('--skip_hosts', type=int, default=1,
                         help='Do not mount /mnt/isilon on the first skip_hosts hosts.')
+    parser.add_argument('--user', default='')
     args = parser.parse_args()
 
     print('# Initial Arguments: ' + str(args))
@@ -54,6 +56,8 @@ def main():
 
     assert len(args.isilon_ip) == args.isilon_ip_count
 
+    ssh_user = '' if args.user == '' else args.user + '@'
+
     # Mount /mnt/isilon on all except first host.
     # This will use default mount parameters.
     for host_index, host in enumerate(args.host):
@@ -62,7 +66,8 @@ def main():
 
         cmd = [
             'ssh',
-            'root@%s' % host,
+            '%s%s' % (ssh_user, host),
+            'sudo',
             'umount',
             '/mnt/isilon',
         ]
@@ -72,7 +77,8 @@ def main():
         if args.mount:
             cmd = [
                 'ssh',
-                'root@%s' % host,
+                '%s%s' % (ssh_user, host),
+                'sudo',
                 'mkdir', '-p', '/mnt/isilon',
             ]
             print(' '.join(cmd))
@@ -80,10 +86,11 @@ def main():
 
             cmd = [
                 'ssh',
-                'root@%s' % host,
+                '%s%s' % (ssh_user, host),
+                'sudo',
                 'mount',
                 '-t', 'nfs',
-                '%s:/ifs' % isilon_ip,
+                '%s:%s' % (isilon_ip, args.export),
                 '/mnt/isilon',
             ]
             print(' '.join(cmd))
@@ -98,7 +105,8 @@ def main():
 
             cmd = [
                 'ssh',
-                'root@%s' % host,
+                '%s%s' % (ssh_user, host),
+                'sudo',
                 'umount',
                 '/mnt/isilon%d' % mount_number,
             ]
@@ -108,7 +116,8 @@ def main():
             if args.mount:
                 cmd = [
                     'ssh',
-                    'root@%s' % host,
+                    '%s%s' % (ssh_user, host),
+                    'sudo',
                     'mkdir', '-p', '/mnt/isilon%d' % mount_number,
                 ]
                 print(' '.join(cmd))
@@ -116,11 +125,12 @@ def main():
 
                 cmd = [
                     'ssh',
-                    'root@%s' % host,
+                    '%s%s' % (ssh_user, host),
+                    'sudo',
                     'mount',
                     '-t', 'nfs',
                     '-o', 'rsize=524288,wsize=524288,nolock,soft,timeo=50,retrans=1,proto=tcp',
-                    '%s:/ifs' % isilon_ip,
+                    '%s:%s' % (isilon_ip, args.export),
                     '/mnt/isilon%d' % mount_number,
                 ]
                 print(' '.join(cmd))
