@@ -17,10 +17,11 @@ import functools
 
 
 def start_container(args, host):
+    ssh_user = '' if args.user == '' else args.user + '@'
     cmd = [
         'ssh',
         '-p', '22',
-        '%s@%s' % (args.user, host),
+        '%s%s' % (ssh_user, host),
         'docker', 'stop', args.container_name,
     ]
     print(' '.join(cmd))
@@ -31,7 +32,7 @@ def start_container(args, host):
             cmd = [
                 'ssh',
                 '-p', '22',
-                '%s@%s' % (args.user, host),
+                '%s%s' % (args.user, host),
                 'docker',
                 'pull',
                 args.docker_image,
@@ -42,7 +43,7 @@ def start_container(args, host):
         cmd = [
             'ssh',
             '-p', '22',
-            '%s@%s' % (args.user, host),
+            '%s%s' % (args.user, host),
             'docker',
             'run',
             '--rm',
@@ -80,7 +81,7 @@ def main():
     parser.add_argument('--config', '-c', required=False, is_config_file=True, help='config file path')
     parser.add_argument('--host', '-H', action='append', required=True, help='List of hosts on which to invoke processes.')
     parser.add_argument('--scripts_dir', action='store',
-                        default='/mnt/isilon/data/tf-bench-util',
+                        default='/mnt/isilon/data/ai-benchmark-util',
                         help='Fully qualified path to the scripts directory.')
     parser.add_argument('--benchmarks_dir', action='store',
                         default='/mnt/isilon/data/tensorflow-benchmarks',
@@ -98,7 +99,7 @@ def main():
                         default='claudiofahey/tensorflow:19.03-py3-custom',
                         help='Docker image tag.')
     parser.add_argument('--user', action='store',
-                        default='root',
+                        default='',
                         help='SSH user')
     parser.add_argument('--nopull', dest='pull', action='store_false',
                         default=True,
