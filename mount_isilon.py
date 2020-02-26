@@ -33,6 +33,7 @@ def main():
     parser.add_argument('--isilon_ip_count', '-c', type=int, default=1,
                         help='Total number of Isilon IP addresses. '
                         'If --isilon_ip specifies the first IP address only, consecutive IP addresses will be calculated.')
+    parser.add_argument('--mount_options', default='rsize=524288,wsize=524288,nolock,soft,timeo=50,retrans=12,proto=tcp')
     parser.add_argument('--noop', action='store_true', default=False,
                         help='Print all commands but do not execute them.')
     parser.add_argument('--nomount', dest='mount', action='store_false', default=True,
@@ -129,7 +130,7 @@ def main():
                     'sudo',
                     'mount',
                     '-t', 'nfs',
-                    '-o', 'rsize=524288,wsize=524288,nolock,soft,timeo=50,retrans=1,proto=tcp',
+                    '-o', args.mount_options,
                     '%s:%s' % (isilon_ip, args.export),
                     '/mnt/isilon%d' % mount_number,
                 ]
