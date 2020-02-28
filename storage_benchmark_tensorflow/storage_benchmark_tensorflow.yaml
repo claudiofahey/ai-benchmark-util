@@ -1,28 +1,29 @@
 batch_size: 256
-flush: true
+#flush: true
 host:
-  - dgx2-1
-  - dgx2-2
-  - dgx2-3
+  - dl-worker1
+  - dl-worker2
+  - dl-worker3
+  - dl-worker4
+  - dl-worker5
+  - dl-worker6
+  - dl-worker7
+  - dl-worker8
+  - dl-worker11
+  - dl-worker12
+  - dl-worker13
+  - dl-worker14
+#  - dl-worker2.us-east4-a.c.isilon-hdfs-project.internal
+#  - dl-worker9.us-east4-b.c.isilon-hdfs-project.internal
+#  - dl-worker10.us-east4-b.c.isilon-hdfs-project.internal
 input_file_specs:
-  - "/mnt/isilon1/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon2/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon3/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon4/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon5/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon6/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon7/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon8/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon9/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon10/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon11/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon12/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon13/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon14/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon15/data/imagenet-scratch/tfrecords-150x/train-*"
-  - "/mnt/isilon16/data/imagenet-scratch/tfrecords-150x/train-*"
+  - "/mnt/filestore1/data/imagenet-scratch/tfrecords-7x/train-*"
+#  - "/mnt/isilon1/data/imagenet-scratch/tfrecords-7x/train-*"
+#  - "/mnt/isilon2/data/imagenet-scratch/tfrecords-7x/train-*"
+#  - "/mnt/isilon3/data/imagenet-scratch/tfrecords-7x/train-*"
+#  - "/mnt/isilon4/data/imagenet-scratch/tfrecords-7x/train-*"
 install: true
-isilon_host: 172.28.10.151
+#isilon_host: 172.28.10.151
 metrics_directory: /imagenet-scratch/logs
 np: 48
 npernode: 80

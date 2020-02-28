@@ -22,7 +22,8 @@ def add_test():
         raise Exception()
 
     data_dir_template = '/mnt/' + storage_type + '%%d/data/imagenet-scratch/tfrecords' + data_dir_suffix
-    flush = not cached
+    flush_compute = not cached
+    flush_isilon = storage_type=='isilon' and not cached
 
     t = dict(
         test='simple',
@@ -48,7 +49,8 @@ def add_test():
             '--data_dir_template_count', '%d' % data_dir_template_count,
             '--datasets_prefetch_buffer_size', '%d' % datasets_prefetch_buffer_size,
             '--datasets_num_private_threads', '%d' % datasets_num_private_threads,
-            '--flush', '%d' % flush,
+            '--flush_compute', '%d' % flush_compute,
+            '--flush_isilon', '%d' % flush_isilon,
             '--fp16', '%d' % fp16,
             '--isilon_host', '%(isilon_host)s',
             '--model', model,
@@ -70,10 +72,11 @@ def add_test():
         data_dir_template_count=data_dir_template_count,
         datasets_prefetch_buffer_size=datasets_prefetch_buffer_size,
         datasets_num_private_threads=datasets_num_private_threads,
-        flush=flush,
+        flush_compute=flush_compute,
+        flush_isilon=flush_isilon,
         fp16=fp16,
         image_resize_factor=image_resize_factor,
-        isilon_flush=flush,
+        isilon_flush=flush_isilon,
         model=model,
         mpi=mpi,
         np=np,
@@ -86,6 +89,16 @@ def add_test():
         nvlink=False,
         storage_type=storage_type,
         use_tf_layers=use_tf_layers,
+    )
+    t['metrics_group:nvidia'] = dict(
+        agents=dict(
+            nvidia_smi=dict(
+                start_cmd='nvidia-smi --query-gpu=timestamp,name,pci.bus_id,driver_version,pstate,pcie.link.gen.max,\
+pcie.link.gen.current,temperature.gpu,utilization.gpu,utilization.memory,\
+memory.total,memory.free,memory.used --format=csv -l 5',
+                stop_cmd='pkill nvidia-smi',
+            )
+        )
     )
     test_list.append(t)
 
@@ -100,16 +113,16 @@ noop = False
 
 # Full test suite
 for repeat in range(3):
-    for storage_type in ['filestore','isilon']:     # 'isilon','filestore'
+    for storage_type in ['isilon']:     # 'isilon','filestore'
         for cached in [False]:
-            for model in ['resnet50','vgg16','resnet152','inception3','inception4']:  # 'vgg16','resnet152','inception3','inception4'
+            for model in ['resnet50']:  # 'vgg16','resnet152','inception3','inception4'
                 for batch_group_size in [10]:
-                    for batch_size in [48,64]:
+                    for batch_size in [64]:
                         for data_dir_template_count in [1 if storage_type=='filestore' else 4]:
                             for datasets_prefetch_buffer_size in [40]:
                                 for datasets_num_private_threads in [4]:
-                                    for num_batches in [500]:
-                                        for num_hosts in [2,1]:
+                                    for num_batches in [50]:
+                                        for num_hosts in [23]:
                                             for npernode in [4]:
                                                 np = num_hosts * npernode
                                                 for num_intra_threads in [1]:

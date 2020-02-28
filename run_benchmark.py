@@ -64,7 +64,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         ]
 
     # Flush Isilon cache.
-    if args.flush:
+    if args.flush_isilon:
         cmd = [
             'ssh',
             '-p', '22',
@@ -75,7 +75,7 @@ def run_tf_cnn_benchmarks(args, unknown_args):
         subprocess.run(cmd, check=True)
 
     # Drop caches on all slave nodes.
-    if args.flush:
+    if args.flush_compute:
         cmd = [
             'mpirun',
             '--n', str(num_hosts),
@@ -187,7 +187,8 @@ def main():
     parser.add('--device', default='gpu')
     parser.add('--eval', type=parse_bool, default=False,
                help='Perform inference instead of training.')
-    parser.add('--flush', type=parse_bool, default=False, help='Flush caches')
+    parser.add('--flush_compute', type=parse_bool, default=False, help='Flush caches')
+    parser.add('--flush_isilon', type=parse_bool, default=False, help='Flush caches')
     parser.add('--fp16', type=parse_bool, default=True,  help='Use FP16, otherwise use FP32')
     parser.add('--force_gpu_compatible', type=parse_bool, default=True)
     parser.add('--forward_only', type=parse_bool, default=False,

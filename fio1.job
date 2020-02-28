@@ -1,8 +1,9 @@
 [global]
 name=job1
 directory=/mnt/isilon1/tmp/fio:/mnt/isilon2/tmp/fio:/mnt/isilon3/tmp/fio:/mnt/isilon4/tmp/fio
+#directory=/mnt/filestore1/tmp/fio
 time_based=0
-#runtime=3600
+runtime=300
 ramp_time=30
 ioengine=libaio
 numjobs=4
@@ -12,9 +13,10 @@ kb_base=1000
 
 [job1]
 rw=read
+#rw=write
 nrfiles=30
-size=250GB
+size=40GB
 bs=1024KiB
 direct=1
 sync=0
-rate_iops=50
+rate_iops=100
