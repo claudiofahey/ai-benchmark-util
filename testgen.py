@@ -10,12 +10,14 @@ import sys
 
 
 def add_test():
-    num_copies = 1 if cached else num_copies_uncached
+    num_copies = num_copies_cached if cached else num_copies_uncached
 
     if num_copies == 1 and image_resize_factor == 1.0:
         data_dir_suffix = ''
     elif num_copies > 1 and image_resize_factor == 1.0:
         data_dir_suffix = '-%dx' % num_copies
+    elif num_copies < 1 and image_resize_factor == 1.0:
+        data_dir_suffix = '-%0.1fx' % num_copies
     elif num_copies == 1 and image_resize_factor == 3.0:
         data_dir_suffix = '1729'
     else:
@@ -105,6 +107,7 @@ memory.total,memory.free,memory.used --format=csv -l 5',
 
 test_list = []
 
+num_copies_cached = 0.1
 num_copies_uncached = 7
 image_resize_factor = 1.0
 fp16 = True
@@ -114,15 +117,15 @@ noop = False
 # Full test suite
 for repeat in range(3):
     for storage_type in ['isilon']:     # 'isilon','filestore'
-        for cached in [False]:
+        for cached in [True]:
             for model in ['resnet50']:  # 'vgg16','resnet152','inception3','inception4'
                 for batch_group_size in [10]:
                     for batch_size in [64]:
-                        for data_dir_template_count in [1 if storage_type=='filestore' else 4]:
+                        for data_dir_template_count in [1 if cached or storage_type=='filestore' else 4]:
                             for datasets_prefetch_buffer_size in [40]:
                                 for datasets_num_private_threads in [4]:
-                                    for num_batches in [50]:
-                                        for num_hosts in [23]:
+                                    for num_batches in [500]:
+                                        for num_hosts in [30,24,16,8,4,2,1]:
                                             for npernode in [4]:
                                                 np = num_hosts * npernode
                                                 for num_intra_threads in [1]:

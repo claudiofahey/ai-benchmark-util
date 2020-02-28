@@ -1,20 +1,36 @@
 #benchmarks_dir: /mnt/home/faheyc/deeplearning/tensorflow-benchmarks
 docker_image: claudiofahey/tensorflow:19.09-py3-custom
-#gpus: all
-gpus: ""
+gpus: all
+#gpus: ""
 host:
-  - dl-worker1
-  - dl-worker2
-  - dl-worker3
-  - dl-worker4
-  - dl-worker5
-  - dl-worker6
-  - dl-worker7
-  - dl-worker8
-  - dl-worker11
-  - dl-worker12
-  - dl-worker13
-  - dl-worker14
-#  - dl-worker9.us-east4-b.c.isilon-hdfs-project.internal
-#  - dl-worker10.us-east4-b.c.isilon-hdfs-project.internal
+  - dl-worker-001
+  - dl-worker-002
+#  - dl-worker-003
+#  - dl-worker-004
+#  - dl-worker-005
+#  - dl-worker-006
+#  - dl-worker-007
+#  - dl-worker-008
+#  - dl-worker-009
+#  - dl-worker-010
+#  - dl-worker-011
+#  - dl-worker-012
+#  - dl-worker-013
+#  - dl-worker-014
+#  - dl-worker-015
+#  - dl-worker-016
+#  - dl-worker-017
+#  - dl-worker-018
+#  - dl-worker-019
+#  - dl-worker-020
+#  - dl-worker-021
+#  - dl-worker-022
+#  - dl-worker-023
+#  - dl-worker-024
+#  - dl-worker-025
+#  - dl-worker-026
+#  - dl-worker-027
+#  - dl-worker-028
+#  - dl-worker-029
+#  - dl-worker-030
 #scripts_dir: /mnt/home/faheyc/deeplearning/ai-benchmark-util
