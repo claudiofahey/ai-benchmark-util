@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -ex
 
-FIRST_WORKER=001
-LAST_WORKER=018
+FIRST_WORKER=019
+LAST_WORKER=024
 
 #seq -w ${FIRST_WORKER} ${LAST_WORKER} | xargs -i -P 0 ssh dl-worker-{} \
 #sudo /opt/deeplearning/install-driver.sh

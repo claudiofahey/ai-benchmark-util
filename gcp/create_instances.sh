@@ -28,9 +28,9 @@ https://www.googleapis.com/auth/trace.append \
 
 #--accelerator=type=nvidia-tesla-p4,count=4
 
-AVAIL_ZONE=a
-FIRST_WORKER=001
-LAST_WORKER=018
+AVAIL_ZONE=b
+FIRST_WORKER=019
+LAST_WORKER=024
 
 seq -w ${FIRST_WORKER} ${LAST_WORKER} | \
 xargs -i -P 5 \

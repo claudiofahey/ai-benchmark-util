@@ -19,12 +19,12 @@ host:
   - dl-worker-016
   - dl-worker-017
   - dl-worker-018
-#  - dl-worker-019
-#  - dl-worker-020
-#  - dl-worker-021
-#  - dl-worker-022
-#  - dl-worker-023
-#  - dl-worker-024
+  - dl-worker-019
+  - dl-worker-020
+  - dl-worker-021
+  - dl-worker-022
+  - dl-worker-023
+  - dl-worker-024
 #  - dl-worker-025
 #  - dl-worker-026
 #  - dl-worker-027
