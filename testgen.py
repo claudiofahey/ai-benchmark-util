@@ -117,8 +117,8 @@ noop = False
 # Full test suite
 for repeat in range(3):
     for storage_type in ['isilon']:     # 'isilon','filestore'
-        for cached in [True]:
-            for model in ['resnet50']:  # 'vgg16','resnet152','inception3','inception4'
+        for cached in [True] if storage_type=='local' else [False,True]:
+            for model in ['resnet50','vgg16','resnet152','inception3','inception4']:
                 for batch_group_size in [10]:
                     for batch_size in [64]:
                         for data_dir_template_count in [1 if cached or storage_type=='filestore' else 4]:
